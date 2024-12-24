@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: 'http://localhost:3000', // Adjust as per your frontend URL
+  origin: 'http://localhost:3001', // Adjust as per your frontend URL
   credentials: true, // Allow cookies to be sent with requests
 }));
 
