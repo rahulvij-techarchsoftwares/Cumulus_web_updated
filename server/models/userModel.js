@@ -136,5 +136,24 @@ UserSchema.statics.refreshMembershipStatus = async function () {
     })
   );
 };
+
+
+
+const ProfilePictureSchema = new mongoose.Schema(
+  {
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // Reference to the User collection
+      required: true,
+    },
+    profilePicture: {
+      type: String, // Path to the uploaded profile picture
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
+const ProfilePicture = mongoose.model("ProfilePicture", ProfilePictureSchema);
 const Userlogin = mongoose.model("User", UserSchema);
-module.exports = { Role, SecurityQuestion, Userlogin, UserQuestion };
+module.exports = { Role, SecurityQuestion, Userlogin, UserQuestion, ProfilePicture };

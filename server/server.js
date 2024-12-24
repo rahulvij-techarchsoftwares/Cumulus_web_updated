@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const path = require("path");
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const stripeRoutes = require('./routes/stripeRoutes');
@@ -16,11 +17,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+
 app.use(cookieParser());
 app.use(cors({
   origin: 'http://16.170.230.178:3001', 
   credentials: true, 
 }));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Configure express-session
 app.use(session({

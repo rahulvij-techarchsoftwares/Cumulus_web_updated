@@ -17,8 +17,13 @@ const Navbar = ({ onFolderSelect }) => {
     const [isMembershipActive, setIsMembershipActive] = useState(false);
     const [username, setUsername] = useState("");
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+    
 
     const navigate = useNavigate();
+
+    const gotoprofile = () => {
+        navigate("/my-profile"); // Navigate to the "About" page
+      };
     const dropdownVariants = {
         hidden: { opacity: 0, y: -10 },
         visible: { opacity: 1, y: 0 },
@@ -157,6 +162,13 @@ const Navbar = ({ onFolderSelect }) => {
                             >
                                 {/* <LogOut className="w-5 h-5 mr-2" /> */}
                                 <span>Sign Out</span>
+                            </button>
+                            <button
+                                onClick={gotoprofile}
+                                className="flex items-center justify-between  hover:text-red-600  cursor-pointer font-medium rounded-md px-4 py-2 w-full transition duration-300"
+                            >
+                                {/* <LogOut className="w-5 h-5 mr-2" /> */}
+                                <span>My Profile</span>
                             </button>
                         </motion.div>
                     )}

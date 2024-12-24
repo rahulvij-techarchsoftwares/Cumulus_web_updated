@@ -7,6 +7,7 @@ import Navbar from "../Component/Main/Navbar";
 import Voicememo from "../Component/Main/Voicememo";
 import Help from "../Component/Main/Help";
 import SharedFiles from "../Component/Main/SharedFiles";
+import Profile from "../Component/Main/Profile";
 const MainLayout = () => {
   const [selectedFolder, setSelectedFolder] = useState();
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,6 +36,7 @@ const MainLayout = () => {
                 <Route path="/SharedFiles" element={<SharedFiles />} />
           <Route path="/subscription" element={<Subscription />} />
           <Route path="/Voicememo" element={<Voicememo />} />
+          <Route path="/my-profile" element={<Profile/>} />
           <Route path="/Help" element={<Help />} />
         </Routes>
       </div>

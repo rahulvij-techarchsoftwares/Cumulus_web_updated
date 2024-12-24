@@ -1,7 +1,10 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { Role, SecurityQuestion, Userlogin, UserQuestion } = require("../models/userModel");
+const { Role, SecurityQuestion, Userlogin, UserQuestion, ProfilePicture } = require("../models/userModel");
+const path = require("path");
+const fs = require("fs");
+const multer = require("multer");
 const crypto = require('crypto');
 const { generateOTP, sendEmail } = require('../email/emailUtils')
 const router = express.Router();
@@ -519,7 +522,161 @@ router.post("/signout", (req, res) => {
 });
 
 
+router.post("/update-user-details", authenticateToken, async (req, res) => {
+  try {
+    const { user_id } = req.user; // Extracted from the token by the middleware
+    const { username, email, phoneNumber } = req.body;
 
+    // Validate input
+    if (!username && !email && !phoneNumber) {
+      return res.status(400).json({ message: "Please provide at least one field to update." });
+    }
+
+    // Build the update object dynamically
+    const updateData = {};
+    if (username) updateData.username = username;
+    if (email) updateData.email = email;
+    if (phoneNumber) updateData.phoneNumber = phoneNumber;
+
+    // Update user in the database
+    const updatedUser = await Userlogin.findByIdAndUpdate(
+      user_id,
+      { $set: updateData },
+      { new: true, runValidators: true } // Return the updated document and validate fields
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    res.status(200).json({ message: "User updated successfully.", user: updatedUser });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Email already in use." });
+    }
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+
+router.get("/get-personaluser-details", authenticateToken, async (req, res) => {
+  try {
+    const { user_id } = req.user; // Extracted from the token by the middleware
+
+    // Fetch user details
+    const user = await Userlogin.findById(user_id, "username email phoneNumber roles");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    res.status(200).json({
+      message: "User details retrieved successfully.",
+      user: {
+        username: user.username,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        roles: user.roles,
+      },
+    });
+  } catch (error) {
+    console.error("Error retrieving user details:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// Ensure the 'uploads' directory exists
+const uploadDirectory = path.join(__dirname, "../uploads");
+
+if (!fs.existsSync(uploadDirectory)) {
+  fs.mkdirSync(uploadDirectory, { recursive: true }); // Create the 'uploads' directory if it doesn't exist
+}
+
+// Set up multer storage configuration
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDirectory); // Store images in the 'uploads' directory
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); // Save with a unique name
+  },
+});
+
+const upload = multer({ storage: storage });
+
+// Route for uploading or updating profile picture
+router.post(
+  "/uploadProfilePicture",
+  authenticateToken,
+  upload.single("profilePicture"), // Upload a single file with the field name 'profilePicture'
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const { user_id } = req.user; // Get user_id from the authenticated token
+      const profilePicturePath = req.file.path; // Get the path of the uploaded file
+
+      // Check if the user already has a profile picture
+      const existingProfile = await ProfilePicture.findOne({ user_id });
+
+      if (existingProfile) {
+        // Update the existing profile picture
+        existingProfile.profilePicture = profilePicturePath;
+        await existingProfile.save();
+        return res.status(200).json({
+          message: "Profile picture updated successfully",
+          profilePicture: profilePicturePath,
+        });
+      }
+
+      // If no existing profile picture, create a new one
+      const newProfile = new ProfilePicture({
+        user_id,
+        profilePicture: profilePicturePath,
+      });
+      await newProfile.save();
+
+      return res.status(200).json({
+        message: "Profile picture uploaded successfully",
+        profilePicture: profilePicturePath,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Server error" });
+    }
+  }
+);
+
+
+
+// Route to retrieve the profile picture
+router.get("/getProfilePicture", authenticateToken, async (req, res) => {
+  try {
+    const { user_id } = req.user; // Get the user_id from the authenticated token
+
+    // Find the profile picture for the user
+    const profile = await ProfilePicture.findOne({ user_id });
+
+    if (!profile) {
+      return res.status(404).json({ message: "Profile picture not found" });
+    }
+
+    // Return the relative URL of the profile picture
+    const profilePictureUrl = `http://16.170.230.178/uploads/${path.basename(profile.profilePicture)}`;
+
+
+    return res.status(200).json({
+      message: "Profile picture retrieved successfully",
+      profilePictureUrl,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
 
 
 module.exports = { router, authenticateToken };

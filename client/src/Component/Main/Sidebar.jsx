@@ -534,7 +534,7 @@ const Sidebar = ({ onFolderSelect }) => {
             </div> */}
 
       {/* Designees Section */}
-      <div className="">
+      {/* <div className="">
         <h2 className="font-semibold text-[#667085] text-xs mt-2">
           {designers.length} Designees
           {designers.length > 3 && (
@@ -562,7 +562,7 @@ const Sidebar = ({ onFolderSelect }) => {
             )
           )}
         </ul>
-        {/* Add Designer Button */}
+    
         <button
           onClick={() => {
             if (isMembershipActive) {
@@ -577,10 +577,10 @@ const Sidebar = ({ onFolderSelect }) => {
         >
           <Plus className="mr-2" />
           Add Designer
-        </button>
+        </button> */}
 
         {/* Popup for Adding Designee */}
-        {showDesignerPopup && (
+        {/* {showDesignerPopup && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
             <div className="bg-white p-6 rounded-lg shadow-lg w-96">
               <div className="flex justify-between items-center border-b pb-3">
@@ -635,14 +635,14 @@ const Sidebar = ({ onFolderSelect }) => {
                 className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
               >
                 Invite to Cumulus
-              </button>
+              </button> */}
 
 
-            </div>
+            {/* </div>
 
           </div>
         )}
-      </div>
+      </div> */}
 
       {/* Tags
             <div>
