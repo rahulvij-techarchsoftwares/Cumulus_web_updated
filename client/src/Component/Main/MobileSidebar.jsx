@@ -837,7 +837,7 @@ const [editingFolderId, setEditingFolderId] = useState(null); // State to track 
                 }}
               >
                 <Users className="" />
-                <h2 className="ml-3">Share With Me</h2>
+                <h2 className="ml-3">Shared With Me</h2>
               </span>
 
             </NavLink>
