@@ -73,7 +73,9 @@ const Sidebar = ({ onFolderSelect }) => {
   const [editFolderName, setEditFolderName] = useState(""); // State for folder name being edited
 const [editingFolderId, setEditingFolderId] = useState(null); // State to track which folder is being edited
 
-
+const handleClickhelp = () => {
+  navigate('/help'); // Replace '/target-route' with your desired route
+};
 
   useEffect(() => {
     const getUserData = async () => {
@@ -780,7 +782,7 @@ const [editingFolderId, setEditingFolderId] = useState(null); // State to track 
       {/* Help & Support */}
       <div className="flex-grow"></div>
       <div className="mt-auto ">
-        <button className="flex w-full  p-2 text-[#667085]  rounded-md ">
+        <button className="flex w-full  p-2 text-[#667085]  rounded-md " onClick={handleClickhelp}>
           <span className="flex gap-2">
             <CircleAlertIcon />
             Help and Support</span>
