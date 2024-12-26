@@ -81,7 +81,10 @@ const MobileSidebar = ({ onFolderSelect }) => {
   const [membershipDetail, setMembershipDetail] = useState(null);
   const [deletebutton1, setDeletebutton1] = useState(false);
 
-
+const handleClickhelp = () => {
+    setIsOpen(false); // Close the menu or modal
+    navigate('/help'); // Navigate to the desired route
+  };
   
   const [editFolderName, setEditFolderName] = useState(""); // State for folder name being edited
 const [editingFolderId, setEditingFolderId] = useState(null); // State to track which folder is being edited
@@ -846,7 +849,7 @@ const [editingFolderId, setEditingFolderId] = useState(null); // State to track 
           <div className="flex-grow"></div>
           <div className="mt-auto ">
             <button className="flex w-full  p-2 text-[#667085]  rounded-md "
-              onClick={() => setIsOpen(false)}
+              onClick={handleClickhelp}
             >
               <span className="flex gap-2">
                 <CircleAlertIcon />
