@@ -2014,7 +2014,7 @@ Contact:
                                     </button>
                                     <button
               className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
-{/*               onClick={() => setEditingFileId(file._id)} // Trigger editing on main row */}
+               //onClick={() => setEditingFileId(file._id)} 
             >
               <Edit className="h-4" />
               <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white min-w-[100px] text-black text-xs py-1 px-1 rounded shadow">
