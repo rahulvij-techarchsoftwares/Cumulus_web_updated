@@ -37,7 +37,7 @@ const MainLayout = () => {
           <Route path="/subscription" element={<Subscription />} />
           <Route path="/Voicememo" element={<Voicememo />} />
           <Route path="/my-profile" element={<Profile/>} />
-          <Route path="/Help" element={<Help />} />
+          <Route path="/help" element={<Help />} />
         </Routes>
       </div>
     </div>

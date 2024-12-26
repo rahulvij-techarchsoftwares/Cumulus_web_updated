@@ -554,11 +554,11 @@ const Signup = () => {
                     <div className="bg-white text-black p-4 min-h-full rounded-lg min-w-full max-w-md flex justify-center flex-col">
                         {/* Logo */}
                         <div className="flex items-center mb-5 lg:w-full sm-w-[20%] w-full">
-                            <img src={logo} alt="Cumulus Logo" className="min-h-10 w-full object-fit" />
+                            <img src={logo} alt="Cumulus Logo" className="min-h-8 w-full object-fit" />
                         </div>
 
-                        <h1 className="text-2xl font-bold mb-2 text-center lg:text-left">Registration</h1>
-                        <p className=" text-gray-600 mb-4 text-center lg:text-left">
+                        <h1 className="text-2xl font-bold mb-2 text-left">Registration</h1>
+                        <p className=" text-gray-600 mb-4 text-left">
                             Please fill out the following information.
                         </p>
 
@@ -754,12 +754,13 @@ const Signup = () => {
 
             {/* Right Section */}
 
-            <div className="hidden z-10 lg:flex min-h-screen md:w-3/5 bg-gray-100 justify-center items-center aspect-[16/9]">
+            <div className="hidden min-h-screen z-10 lg:flex md:w-3/5 bg-slate-100 justify-center items-center">
                 <img
                     src={rightsignup}
                     alt="Illustration"
-                    className="min-w-full min-h-full object-fit "
+                    className="right-img-on-des min-w-full bg-cover bg-no-repeat bg-center max-h-[700px]"
                 />
+         
             </div>
 
 

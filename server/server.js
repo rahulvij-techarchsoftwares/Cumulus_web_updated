@@ -12,6 +12,7 @@ const subscriptionRoutes = require("./routes/subscriptionRoutes");
 const voiceuploadRoutes = require("./routes/voiceuploadRoutes");
 const defaultfileRoutes = require("./routes/defaultfileRoutes");
 const membershipRoutes = require("./routes/membershipRoutes");
+const helpandsupport = require("./routes/userhelpRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -44,6 +45,7 @@ app.use("/api/voice-memo", voiceuploadRoutes);
 app.use("/api/default", defaultfileRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api', membershipRoutes);
+app.use("/api/help-support", helpandsupport);
 
 const DB_URI = process.env.DB_URI;
 mongoose
@@ -54,4 +56,4 @@ mongoose
     process.exit(1);
   });
 
-  app.listen(PORT, '0.0.0.0', () => console.log(`Server running on http://16.170.230.178:${PORT}`));
+  app.listen(PORT, () => console.log(`Server running on http://16.170.230.178:${PORT}`));

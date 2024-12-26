@@ -80,6 +80,11 @@ const MobileSidebar = ({ onFolderSelect }) => {
   const [isMembershipActive, setIsMembershipActive] = useState(false);
   const [membershipDetail, setMembershipDetail] = useState(null);
   const [deletebutton1, setDeletebutton1] = useState(false);
+
+
+  
+  const [editFolderName, setEditFolderName] = useState(""); // State for folder name being edited
+const [editingFolderId, setEditingFolderId] = useState(null); // State to track which folder is being edited
   useEffect(() => {
     const getUserData = async () => {
       try {
@@ -143,6 +148,42 @@ const MobileSidebar = ({ onFolderSelect }) => {
       console.error(error);
     }
   }
+
+
+  const handleEditFolder = async () => {
+    if (!editFolderName) {
+      setError("New folder name is required.");
+      return;
+    }
+  
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No token found. Please log in again.");
+      }
+  
+      const response = await axios.post(
+        `${API_URL}/api/edit-folder-name`,
+        {
+          folder_id: editingFolderId,
+          new_folder_name: editFolderName,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      alert(response.data.message); // Show success message
+      setEditingFolderId(null); // Close edit mode
+      setEditFolderName(""); // Clear input
+      fetchFolders(); // Refresh folder list
+    } catch (err) {
+      setError("Error updating folder name.");
+      console.error(err);
+    }
+  };
   // Fetch folders from API
   const fetchFolders = async () => {
     setLoading(true);
@@ -355,8 +396,8 @@ const MobileSidebar = ({ onFolderSelect }) => {
               // style={{ width: "100vw", height: "30px" }}
               />
             </div>
-            <button onClick={() => setIsOpen(false)}>
-              <X size={32} />
+            <button className="bg-blue-100 border-2 border-blue-400 w-10 h-9 rounded-lg" onClick={() => setIsOpen(false)}>
+              <X size={32} className="ml-1" />
             </button>
           </div>
 
@@ -406,7 +447,7 @@ const MobileSidebar = ({ onFolderSelect }) => {
             >
               <h2 className="ml-3">All Files</h2>
             </NavLink> */}
-
+            <h1 className="font-semibold text-[#667085] mt-2 text-sm">Home</h1>
             <NavLink
               to="/folder/0"
               className={({ isActive }) =>
@@ -432,7 +473,7 @@ const MobileSidebar = ({ onFolderSelect }) => {
               )}
             </NavLink>
 
-            <h2 className="font-semibold text-[#667085] text-xs mt-2">
+            <h2 className="font-semibold text-[#667085] text-sm mt-2">
               {folders.length} Folders
               {folders.length > 3 && (
                 <button
@@ -475,74 +516,101 @@ const MobileSidebar = ({ onFolderSelect }) => {
                 )}
               </NavLink>
               {(viewAllFolders ? folders : folders.slice(0, 3)).map((folder) => (
-                <NavLink
-                  key={folder.id}
-                  to={`/folder/${folder.id}`}
-                  onClick={(e) => {
-                    if (openMenuId === folder.id) {
-                      e.preventDefault();
-                    } else {
-                      handleFolderSelect(folder);
-                      setIsOpen(false); // Close the parent menu
-                    }
-                  }}
-                  className={({ isActive }) =>
-                    `py-1 px-2 flex items-center rounded cursor-pointer ${isActive ? "bg-blue-500 text-white" : "text-[#434A60]"}`
-                  }
-                >
-                  {({ isActive }) => (
-                    <div className="flex justify-between w-full relative">
-                      <span className="flex gap-2">
-                        {/* Conditionally render the image based on isActive */}
-                        <img
-                          src={isActive ? WhiteFolderNotch : FolderNotch} // Use active/inactive images
-                          alt="Folder"
-                          className="h-6 font-bold"
-                        />
-                        {folder.name}
-                      </span>
+  <NavLink
+    key={folder.id}
+    to={`/folder/${folder.id}`}
+    onClick={(e) => {
+      if (openMenuId === folder.id) {
+        e.preventDefault();
+      } else {
+        handleFolderSelect(folder);
+      }
+    }}
+    className="py-1 px-2 flex items-center rounded cursor-pointer"
+  >
+    <div className="flex justify-between w-full relative items-center">
+      {editingFolderId === folder.id ? (
+        <>
+          <input
+            type="text"
+            value={editFolderName}
+            onChange={(e) => setEditFolderName(e.target.value)}
+            placeholder="Enter new folder name"
+            className="border p-2 rounded w-full mr-2"
+          />
+          <button
+            className="text-green-500 ml-2"
+            onClick={(e) => {
+              e.preventDefault();
+              handleEditFolder(); // Save action
+              setEditingFolderId(null); // Exit editing mode
+              setIsOpen(true); // Ensure sidebar is visible
+            }}
+          >
+            <Check />
+          </button>
+          <button
+            className="text-red-500 ml-2"
+            onClick={(e) => {
+              e.preventDefault();
+              setEditingFolderId(null); // Cancel editing
+              setEditFolderName(""); // Reset folder name
+              setIsOpen(true); // Ensure sidebar is visible when canceling
+            }}
+          >
+            <X />
+          </button>
+        </>
+      ) : (
+        <>
+          <span className="flex gap-2 items-center truncate-text">
+            <img
+              src={FolderNotch}
+              alt="Folder"
+              className="h-6 font-bold"
+            />
+            {folder.name}
+          </span>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              toggleEllipses(folder.id);
+              setIsOpen(true); // Ensure sidebar is visible when toggling menu
+            }}
+          >
+            <EllipsisVertical className="font-thin h-5" />
+          </button>
+        </>
+      )}
 
-                      <button
-                        className="ellipsis cursor-pointer px-3 "
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          toggleEllipses(folder.id);
-                          setIsOpen(true);
-                        }}
-                      >
-                        <EllipsisVertical className="font-thin h-5" />
-                      </button>
-
-                      {/* Menu Options */}
-                      {openMenuId === folder.id && (
-                        <div className="absolute top-full right-0 mt-2 w-32 bg-white shadow-lg rounded-lg text-black z-20">
-                          <button
-                            className="w-full px-4 py-2 text-left hover:bg-gray-100"
-                            onClick={(e) => {
-                              e.stopPropagation(); // Prevent closing when clicking on the menu items
-                              setOpenMenuId(null); // Close the menu
-                            }}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="w-full px-4 py-2 text-left hover:bg-gray-100"
-                            onClick={(e) => {
-                              e.stopPropagation(); // Prevent parent click handlers
-                              setDeletebutton(true); // Open Delete Confirmation Modal
-                              setSelectedFolder(folder.id); // Set Selected Folder
-                            }}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </NavLink>
-
-              ))}
+      {/* Menu Options */}
+      {openMenuId === folder.id && !editingFolderId && (
+        <div className="absolute top-full right-0 mt-2 w-32 bg-white shadow-lg rounded-lg text-black z-20">
+          <button
+            className="w-full px-4 py-2 text-left hover:bg-gray-100"
+            onClick={() => {
+              setEditingFolderId(folder.id); // Enter editing mode
+              setEditFolderName(folder.name);
+              setIsOpen(true); // Ensure sidebar is visible when editing
+            }}
+          >
+            Edit
+          </button>
+          <button
+            className="w-full px-4 py-2 text-left hover:bg-gray-100"
+            onClick={() => {
+              setDeletebutton(true); // Open Delete Confirmation Modal
+              setSelectedFolder(folder.id); 
+              setIsOpen(true); // Ensure sidebar is visible when deleting
+            }}
+          >
+            Delete
+          </button>
+        </div>
+      )}
+    </div>
+  </NavLink>
+))}
             </ul>
 
             {!showFolderInput && (
@@ -715,7 +783,7 @@ const MobileSidebar = ({ onFolderSelect }) => {
 
           {/* Voice memo */}
           <div className="">
-            <h2 className="font-normal text-[#667085] mt-2">Voice memo</h2>
+            <h2 className="font-semibold text-[#667085] text-sm mt-2">Voice memo</h2>
             <NavLink
           to="/voicememo"
           onClick={() => setOpenMenuId(null)}
@@ -738,7 +806,7 @@ const MobileSidebar = ({ onFolderSelect }) => {
 
           {/* Transfer */}
           <div>
-            <h2 className="font-normal text-[#667085] ">Transfer</h2>
+            <h2 className="font-semibold mt-1 text-sm text-[#667085]">Transfer</h2>
             <div className="text-[#434A60] py-1 pl-2 hover:text-blue-500 cursor-pointer flex"
               onClick={() => {
                 setIsOpen(false);
@@ -754,7 +822,7 @@ const MobileSidebar = ({ onFolderSelect }) => {
           {/* Shared Files */}
 
           <div className="">
-            <h2 className="font-normal text-[#667085] mt-1">Share file</h2>
+            <h2 className="font-semibold text-[#667085] text-sm mt-2">Share file</h2>
             <NavLink
               to="/SharedFiles"
               className={({ isActive }) =>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import PropTypes from "prop-types";
 import { Search, Bell, ZapIcon, LogOut } from "lucide-react";
 import ClockClockwise from "../../assets/ClockClockwise.png";
@@ -18,6 +19,7 @@ const Navbar = ({ onFolderSelect }) => {
     const [username, setUsername] = useState("");
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
     
+    const [profilePicture, setProfilePicture] = useState("default-avatar.png");
 
     const navigate = useNavigate();
 
@@ -46,6 +48,27 @@ const Navbar = ({ onFolderSelect }) => {
         };
         getUserData();
     }, []);
+
+    useEffect(() => {
+        const fetchProfilePicture = async () => {
+          try {
+            const token = localStorage.getItem("token");
+            const response = await axios.get(`${API_URL}/api/auth/getProfilePicture`, {
+              headers: {
+                Authorization: `Bearer ${token}`, // Add token if needed
+              },
+            });
+            if (response.status === 200) {
+              setProfilePicture(response.data.profilePictureUrl);
+            }
+          } catch (error) {
+            console.error("Error fetching profile picture:", error);
+            // Use default avatar if fetching fails
+            setProfilePicture("default-avatar.png");
+          }
+        };
+        fetchProfilePicture();
+      }, []);
 
     async function logout() {
         try {
@@ -142,7 +165,7 @@ const Navbar = ({ onFolderSelect }) => {
                         onClick={toggleDropdown}
                     >
                         <img
-                            src={profile}
+                            src={profilePicture}
                             alt="User"
                             className="h-8 w-8 rounded-full object-cover"
                         />

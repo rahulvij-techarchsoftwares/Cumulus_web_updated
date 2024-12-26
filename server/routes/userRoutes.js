@@ -665,7 +665,7 @@ router.get("/getProfilePicture", authenticateToken, async (req, res) => {
     }
 
     // Return the relative URL of the profile picture
-    const profilePictureUrl = `http://16.170.230.178/uploads/${path.basename(profile.profilePicture)}`;
+    const profilePictureUrl = `http://16.170.230.178:3000/uploads/${path.basename(profile.profilePicture)}`;
 
 
     return res.status(200).json({

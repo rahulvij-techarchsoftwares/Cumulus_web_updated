@@ -70,6 +70,8 @@ const Sidebar = ({ onFolderSelect }) => {
 
 
 
+  const [editFolderName, setEditFolderName] = useState(""); // State for folder name being edited
+const [editingFolderId, setEditingFolderId] = useState(null); // State to track which folder is being edited
 
 
 
@@ -104,6 +106,42 @@ const Sidebar = ({ onFolderSelect }) => {
 
   // };
   // Fetch folders from API
+
+
+  const handleEditFolder = async () => {
+    if (!editFolderName) {
+      setError("New folder name is required.");
+      return;
+    }
+  
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No token found. Please log in again.");
+      }
+  
+      const response = await axios.post(
+        `${API_URL}/api/edit-folder-name`,
+        {
+          folder_id: editingFolderId,
+          new_folder_name: editFolderName,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      alert(response.data.message); // Show success message
+      setEditingFolderId(null); // Close edit mode
+      setEditFolderName(""); // Clear input
+      fetchFolders(); // Refresh folder list
+    } catch (err) {
+      setError("Error updating folder name.");
+      console.error(err);
+    }
+  };
   const fetchFolders = async () => {
     setLoading(true);
     try {
@@ -281,11 +319,12 @@ const Sidebar = ({ onFolderSelect }) => {
   }, [location, onFolderSelect]);
   return (
     <div className="hidden md:flex flex-col  min-h-screen w-64 bg-gray-100 p-3 space-y-0  overflow-hidden">
-      <div style={{ width: "25vw" }} className="mb-2">
+      <div style={{ width: "25vw" }} className="mb-2 ">
         <img
           src={logo}
           alt="Cumulus Logo"
-          style={{ width: "100vw", height: "6vh" }}
+          style={{ width: "100%", height: "auto" }}
+          
         />
       </div>
 
@@ -305,7 +344,7 @@ const Sidebar = ({ onFolderSelect }) => {
           <h2 className="ml-3 font-semibold text-sm">What is Cumulus</h2>
         </NavLink> */}
 
-
+        <h1 className="font-semibold text-[#667085] mt-2">Home</h1>
         <NavLink
           to="/folder/0"
           className={({ isActive }) =>
@@ -325,7 +364,7 @@ const Sidebar = ({ onFolderSelect }) => {
                 alt="All Files"
                 className="h-full"
               />
-              <h2 className="ml-3 text-sm">All Files</h2>
+              <h2 className="ml-3">All Files</h2>
             </span>
           )}
         </NavLink>
@@ -374,68 +413,104 @@ const Sidebar = ({ onFolderSelect }) => {
           </NavLink>
 
           {(viewAllFolders ? folders : folders.slice(0, 3)).map((folder) => (
-            <NavLink
-              key={folder.id}
-              to={`/folder/${folder.id}`}
-              onClick={(e) => {
-                if (openMenuId === folder.id) {
-                  e.preventDefault();
-                } else {
-                  handleFolderSelect(folder);
-                }
-              }}
-              className={({ isActive }) =>
-                `py-1 px-2 flex items-center rounded cursor-pointer ${isActive ? "bg-blue-500 text-white" : "text-[#434A60]"}`
-              }
-            >
-              {({ isActive }) => (
-                <div className="flex justify-between w-full relative">
-                  <span className="flex gap-2">
-                    {/* Conditionally render the image based on isActive */}
-                    <img
-                      src={isActive ? WhiteFolderNotch : FolderNotch} // Use active/inactive images
-                      alt="Folder"
-                      className="h-6 font-bold"
-                    />
-                    {folder.name}
-                  </span>
-
-                  <button
-                    onClick={(e) => {
+                <NavLink
+                  key={folder.id}
+                  to={`/folder/${folder.id}`}
+                  onClick={(e) => {
+                    if (openMenuId === folder.id) {
                       e.preventDefault();
-                      toggleEllipses(folder.id); // Handle menu toggle without navigation
-                    }}
-                  >
-                    <EllipsisVertical className="font-thin h-5" />
-                  </button>
-
-                  {/* Menu Options */}
-                  {openMenuId === folder.id && (
-                    <div className="absolute top-full right-0 mt-2 w-32 bg-white shadow-lg rounded-lg text-black z-20">
-                      <button
-                        className="w-full px-4 py-2 text-left hover:bg-gray-100"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOpenMenuId(null);
-                        }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="w-full px-4 py-2 text-left hover:bg-gray-100"
-                        onClick={(e) => {
-                          setDeletebutton(true); // Open Delete Confirmation Modal
-                          setSelectedFolder(folder.id); // Set Selected Folder
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </NavLink>
-          ))}
+                    } else {
+                      handleFolderSelect(folder);
+                    }
+                  }}
+                  className={({ isActive }) =>
+                    `py-1 px-2 flex items-center rounded cursor-pointer ${isActive ? "bg-blue-500 text-white" : "text-[#434A60]"}`
+                  }
+                >
+                  <div className="flex justify-between w-full relative items-center">
+                    {editingFolderId === folder.id ? (
+                      <>
+                        <input
+                          type="text"
+                          value={editFolderName}
+                          onChange={(e) => setEditFolderName(e.target.value)}
+                          placeholder="Enter new folder name"
+                          className="border p-2 rounded w-full mr-2"
+                        />
+                        <button
+                          className="text-green-500 ml-2"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleEditFolder(); // Save action
+                            setEditingFolderId(null); // Exit editing mode
+                           
+                          }}
+                        >
+                          <Check />
+                        </button>
+                        <button
+                          className="text-red-500 ml-2"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setEditingFolderId(null); // Cancel editing
+                            setEditFolderName(""); // Reset folder name
+                          
+                          }}
+                        >
+                          <X />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <span className="flex gap-2 items-center truncate-text">
+                          <img
+                            src={FolderNotch}
+                            alt="Folder"
+                            className="h-6 font-bold"
+                          />
+                          {folder.name}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            toggleEllipses(folder.id);
+                          
+                          }}
+                        >
+                          <EllipsisVertical className="font-thin h-5" />
+                        </button>
+                      </>
+                    )}
+              
+                    {/* Menu Options */}
+                    {openMenuId === folder.id && !editingFolderId && (
+                      <div className="absolute top-full right-0 mt-2 w-32 bg-white shadow-lg rounded-lg text-black z-20">
+                        <button
+                          className="w-full px-4 py-2 text-left hover:bg-gray-100"
+                          onClick={() => {
+                            setEditingFolderId(folder.id); // Enter editing mode
+                            setEditFolderName(folder.name);
+                            
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="w-full px-4 py-2 text-left hover:bg-gray-100"
+                          onClick={() => {
+                            setDeletebutton(true); // Open Delete Confirmation Modal
+                            setSelectedFolder(folder.id);
+                            
+                             // Set Selected Folder
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </NavLink>
+              ))}
         </ul>
 
 
@@ -652,12 +727,12 @@ const Sidebar = ({ onFolderSelect }) => {
 
       {/* Voice memo */}
       <div className="">
-        <h2 className="font-normal text-[#667085] mt-2">Voice memo</h2>
+        <h2 className="font-semibold text-[#667085] mt-2">Voice memo</h2>
         <NavLink
           to="/voicememo"
           onClick={() => setOpenMenuId(null)}
           className={({ isActive }) =>
-            `flex mb-2 cursor-pointer p-2 rounded ${isActive ? "bg-blue-500 text-white" : "text-[#434A60]"}`
+            `flex cursor-pointer p-2 rounded ${isActive ? "bg-blue-500 text-white" : "text-[#434A60]"}`
           }
         >
           {({ isActive }) => (
@@ -675,7 +750,7 @@ const Sidebar = ({ onFolderSelect }) => {
 
       {/* Transfer */}
       <div>
-        <h2 className="font-normal text-[#667085]">Transfer</h2>
+        <h2 className="font-semibold mt-2 text-[#667085]">Transfer</h2>
         <div className="text-[#434A60] py-1 pl-2 hover:text-blue-500 cursor-pointer flex">
           <img src={aftertlife} alt="" className="h-6" />
           <span className="ml-3">After Life Access</span>
@@ -685,7 +760,7 @@ const Sidebar = ({ onFolderSelect }) => {
       {/* Shared Files */}
 
       <div className="">
-        <h2 className="font-normal text-[#667085] mt-1">Share file</h2>
+        <h2 className="font-semibold text-[#667085] mt-3">Share file</h2>
         <NavLink
           to="/SharedFiles"
           onClick={() => setOpenMenuId(null)}

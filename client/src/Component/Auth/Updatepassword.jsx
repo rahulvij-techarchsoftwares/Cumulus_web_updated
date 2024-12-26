@@ -174,7 +174,7 @@ const Updatepassword = () => {
             <div className="lg:w-2/4 w-full flex flex-col justify-center items-center p-3 md:p-6">
                 <div className="bg-white text-black p-10 md:p-6 rounded-lg min-w-full max-w-md">
                     <div className="flex items-center mb-5 lg:w-full sm-w-[80%] w-full">
-                        <img src={logo} alt="Cumulus Logo" className="min-h-10 w-full object-fit" />
+                        <img src={logo} alt="Cumulus Logo" className="min-h-8 w-full object-fit" />
                     </div>
                     <h2 className="text-black text-2xl font-bold mb-2">Forgot Password</h2>
                     <p className="text-gray-600 mb-6">Enter your email to reset your password.</p>
@@ -281,13 +281,14 @@ const Updatepassword = () => {
             </div>
           
             {/* Right Section */}
-            <div className="hidden lg:flex md:w-3/5 bg-gray-100 justify-center items-center aspect-[16/9]">
-                <img
-                    src={rightsignup}
-                    alt="Illustration"
-                    className="w-full h-full object-fit"
-                />
-            </div>
+             <div className="hidden min-h-screen z-10 lg:flex md:w-3/5 bg-slate-100 justify-center items-center">
+                            <img
+                                src={rightsignup}
+                                alt="Illustration"
+                                className="right-img-on-des min-w-full bg-cover bg-no-repeat bg-center max-h-[700px]"
+                            />
+                     
+                        </div>
           </div>
     
     );

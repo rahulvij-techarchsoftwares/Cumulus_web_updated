@@ -357,6 +357,39 @@ router.post("/download-file", authenticateToken, async (req, res) => {
   }
 });
 
+router.post("/edit-file-name", async (req, res) => {
+  try {
+    const { file_id, new_file_name } = req.body;
+
+    // Validate inputs
+    if (!file_id || !new_file_name) {
+      return res.status(400).json({ error: "File ID and new file name are required." });
+    }
+
+    // Find the file in MongoDB
+    const file = await File.findById(file_id);
+    if (!file) {
+      return res.status(404).json({ error: "File not found." });
+    }
+
+    // Encrypt the new file name
+    const { encryptedData, iv } = encryptField(new_file_name);
+
+    // Update the file name and IV in MongoDB
+    file.file_name = encryptedData;
+    file.iv_file_name = iv;
+    await file.save();
+
+    res.status(200).json({
+      message: "File name updated successfully.",
+      newFileName: new_file_name,
+    });
+  } catch (error) {
+    console.error("Error in edit-file-name route:", error);
+    res.status(500).json({ error: "An unexpected error occurred." });
+  }
+});
+
 router.post("/edit-folder-name", authenticateToken, async (req, res) => {
   try {
     const { folder_id, new_folder_name } = req.body;

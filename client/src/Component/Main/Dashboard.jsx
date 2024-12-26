@@ -205,6 +205,8 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
   const [showDropdown, setShowDropdown] = useState(null);
 
 
+  const [editFileId, setEditFileId] = useState(null);
+  const [tempFName, setTempFName] = useState("");
 
   const [access, setAccess] = useState(false);
   const [isMembershipActive, setIsMembershipActive] = useState(false);
@@ -284,6 +286,34 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
   }, []);
 
 
+  const handleSaveFName = async (fileId) => {
+    if (!tempFName) return; // If the file name is empty, do nothing
+
+    
+
+    try {
+      // Send request to backend API to update the file name
+      const response = await axios.post("/edit-file-name", {
+        file_id: fileId,
+        new_file_name: tempFName,
+      });
+
+      if (response.data.message === "File name updated successfully.") {
+        // Update the file name in the local state
+        setFiles((prevFiles) =>
+          prevFiles.map((file) =>
+            file._id === fileId
+              ? { ...file, file_name: response.data.newFileName }
+              : file
+          )
+        );
+        setEditFileId(null);
+        setTempFName("");
+      }
+    } catch (error) {
+      console.error("Error updating file name:", error);
+    }
+  };
 
 
 
@@ -1628,32 +1658,32 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
       {/* File List */}
 
       {Array.isArray(files) && files.length > 0 ? (
-        <div className=" flex justify-between items-center mt-2 px-2 md:px-0 border-gray-300">
+        <div className="flex border-b-2 md:border-0 mb-2 justify-between items-center mt-2 md:px-0 border-gray-300">
 
-          <div className="flex justify-between items-center mt-2 px-2 md:px-0 border-gray-300">
-            <div className="flex flex-col ml-1 text-2xl">
+          <div className="flex justify-between items-center mt-2 md:px-0 border-gray-300">
+            <div className="text-2xl">
               {/* Folder Name */}
-              <div className="flex items-center gap-x-2 text-blue-500">
-                <span className="">{folderId === 1 ? "Cumulus" : folderId === 0 ? "Allfiles" : files[0]?.folder_name || "All files"}</span>
-                <span className="text-black rounded-xl text-lg mt-1 px-2.5 bg-[#EEEEEF]">
+              <div className="flex items-center md:gap-x-2 border-b-4 border-blue-500 text-blue-500">
+                <span className=" font-semibold pb-2 mr-2">{folderId === 1 ? "Cumulus" : folderId === 0 ? "Allfiles" : files[0]?.folder_name || "All Files"}</span>
+                <span className="text-black rounded-xl text-lg mt-1 mb-2 px-2.5 bg-[#EEEEEF]">
                   {`${files.length}`}
                 </span>
               </div>
 
 
-              <div className="h-[4px] w-full bg-blue-500 mt-1" />
+              <div className="" />
             </div>
           </div>
 
-
-          {!(folderId === 0 || folderId === 1) ? (
-  <div className="flex items-center gap-2 border-2 border-blue-500 rounded-lg cursor-pointer">
-    <div className="h-4 text-blue-500 flex items-center justify-center pl-1">
-      <img className="h-6" src={shareicon} alt="" />
-    </div>
-    <p className="text-md md:text-xl text-blue-500 rounded-md py-2 px-2">Share Folder</p>
-  </div>
-) : null}
+          
+          {!(folderId === "0" || folderId === 1) ? (
+              <div className="flex items-center md:gap-2 mb-1 border-2 border-blue-500 rounded-lg cursor-pointer">
+                <div className="h-4 text-blue-500 flex items-center justify-center pl-1">
+                  <img className="h-6" src={shareicon} alt="" />
+                </div>
+                <p className="text-md md:text-xl text-blue-500 rounded-md py-2 px-2">Share Folder</p>
+              </div>  
+            ) : null}
 
         </div>
         
@@ -1824,8 +1854,8 @@ Contact:
 </span> */}
 
                   <span className="flex justify-between">
-                    <p className="text-sm text-gray-600">tag: {file.folder_tag}</p>
-                    <p className="text-sm text-gray-600">contact: {file.folder_contact}</p>
+                   
+                    <p className="text-sm text-gray-600">Sharing contact: {file.folder_contact}</p>
                   </span>
 
 
@@ -1849,15 +1879,13 @@ Contact:
 
                 <tr className="bg-gray-100 text-left text-[0.8rem]  border-black">
 
-                  <th className="p-2 md:p-4 font-normal md:text-lg">File Name</th>
+                  <th className="p-2 md:p-4 font-semibold text-slate-500 md:text-lg">File Name</th>
 
-                  <th className="p-2 md:p-4 font-normal md:text-lg">Folder</th>
+                  <th className="p-2 md:p-4 font-semibold text-slate-500 md:text-lg">Folder</th>
 
-                  <th className="p-2 md:p-4 font-normal md:text-lg">Date Uploaded</th>
+                  <th className="p-2 md:p-4 font-semibold text-slate-500 md:text-lg">Date Uploaded</th>
 
-                  <th className="p-2 md:p-4 font-normal md:text-lg">Contact </th>
-
-                  <th className="p-2 md:p-4 font-normal md:text-lg">Tags</th>
+                  <th className="p-2 md:p-4 font-semibold text-slate-500 md:text-lg">Sharing Contact</th>
 
                 </tr>
 
@@ -1879,72 +1907,85 @@ Contact:
 
                       <React.Fragment key={file._id}>
                         {/* Main Row */}
-                        <tr
-                          className={`text-xs sm:text-sm border  ${isExpanded ? "bg-blue-100 border-blue-100" : ""
-                            } transition-all duration-100`}
-                        >
-                          <td className="p-0 md:p-4 flex items-center gap-0 md:gap-2">
-                            <button
-                              className="text-gray-500 hover:text-gray-800"
-                              onClick={() => handleToggleRow(file._id)}
-                            >
-                              <ChevronDown
-                                className={`${isExpanded ? "rotate-180" : ""} h-5 transition-transform`}
-                              />
-                            </button>
-                            {file.file_name}
-                            {editingFileId === file.id ? (
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="text"
-                                  value={tempFileName}
-                                  onChange={(e) => setTempFileName(e.target.value)}
-                                  className="border border-gray-300 rounded p-1"
-                                  autoFocus
-                                />
-                                <button
-                                  className="text-green-500 hover:text-green-700"
-                                  onClick={() => handleSaveFileName(file.id)}
-                                >
-                                  <Check className="h-5" />
-                                </button>
-                              </div>
-                            ) : (
-                              file.name
-                            )}
-                          </td>
+<tr
+  className={`text-xs sm:text-sm border-b-2 ${
+    isExpanded ? "bg-blue-100 border-blue-100" : ""
+  } transition-all duration-100`}
+>
+  <td className="p-0 md:p-4 flex items-center gap-0 md:gap-2">
+    <button
+      className="text-gray-500 hover:text-gray-800"
+      onClick={() => handleToggleRow(file._id)}
+    >
+      <ChevronDown
+        className={`${
+          isExpanded ? "rotate-180" : ""
+        } h-5 transition-transform`}
+      />
+    </button>
+    {editingFileId === file._id ? (
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          value={tempFileName}
+          onChange={(e) => setTempFileName(e.target.value)}
+          className="border border-gray-300 rounded p-1"
+          autoFocus
+        />
+        <button
+          className="text-green-500 hover:text-green-700"
+          onClick={() => handleSaveFileName(file._id)} // Save file name
+        >
+          <Check className="h-5" />
+        </button>
+      </div>
+    ) : (
+      <div className="flex items-center gap-2">
+        {file.file_name}
+        {/* <button
+          className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
+          onClick={() => setEditingFileId(file._id)} // Start editing
+        >
+          <Edit className="h-4" />
+          <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white min-w-[100px] text-black text-xs py-1 px-1 rounded shadow">
+            Edit Document
+          </span>
+        </button> */}
+      </div>
+    )}
+  </td>
 
-
-                          <td className="p-0 md:p-4">
-                            <div
-                              className={`bg-[#EEEEEF] rounded-xl px-3 py-1 text-[1rem] inline-block transition-all duration-300 ${isExpanded ? "bg-white" : "bg-[#EEEEEF]"
-                                }`}
-                            >
-                              {folderId === 1
-                                ? "Cumulus"
-                                : folderId === 0
-                                  ? "Allfiles"
-                                  : files[0]?.folder_name || "All files"}
-                            </div>
-                          </td>
-                          <td className="p-0 md:p-4">
-                            <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                              {file.date_of_upload && !isNaN(new Date(file.date_of_upload))
-                                ? new Date(file.date_of_upload).toLocaleString("en-US", {
-                                  weekday: "short",
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                  hour: "numeric",
-                                  minute: "numeric",
-                                  hour12: true, // for 12-hour format
-                                })
-                                : "Invalid Date"}
-                            </p>
-                          </td>
-                          <td className="p-0 md:p-4">{file.sharing_contacts}</td>
-                          <td className="p-0 md:p-4">{file.tags}</td>
-                        </tr>
+  <td className="p-0 md:p-4">
+    <div
+      className={`bg-[#EEEEEF] rounded-xl px-3 py-1 text-[1rem] inline-block transition-all duration-300 ${
+        isExpanded ? "bg-white" : "bg-[#EEEEEF]"
+      }`}
+    >
+      {folderId === 1
+        ? "Cumulus"
+        : folderId === 0
+        ? "Allfiles"
+        : files[0]?.folder_name || "All files"}
+    </div>
+  </td>
+  <td className="p-0 md:p-4">
+    <p className="text-xs sm:text-sm text-gray-600 mt-1">
+      {file.date_of_upload &&
+      !isNaN(new Date(file.date_of_upload))
+        ? new Date(file.date_of_upload).toLocaleString("en-US", {
+            weekday: "short",
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            hour12: true, // for 12-hour format
+          })
+        : "Invalid Date"}
+    </p>
+  </td>
+  <td className="p-0 md:p-4">{file.sharing_contacts}</td>
+</tr>
 
                         {/* Expanded Row */}
                         {isExpanded && (
@@ -1972,14 +2013,14 @@ Contact:
                                       </span>
                                     </button>
                                     <button
-                                      className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
-                                    // onClick={() => handleEditnameFile(file)}
-                                    >
-                                      <Edit className="h-4" />
-                                      <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white min-w-[100px] text-black text-xs py-1 px-1 rounded shadow">
-                                        Edit Document
-                                      </span>
-                                    </button>
+              className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
+              onClick={() => setEditingFileId(file._id)} // Trigger editing on main row
+            >
+              <Edit className="h-4" />
+              <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white min-w-[100px] text-black text-xs py-1 px-1 rounded shadow">
+                Edit Document
+              </span>
+            </button>
                                     <button
                                       className="relative group flex items-center gap-2 text-gray-600 hover:text-red-500"
                                       onClick={() => {
@@ -2385,13 +2426,7 @@ Contact:
 
               </span>
 
-              <span className="flex items-center gap-1">
-
-                Tag:
-
-                <p className="text-xs text-gray-600">{file.folder_tag}</p>
-
-              </span>
+              
 
               <div className="mt-2 flex gap-2">
 

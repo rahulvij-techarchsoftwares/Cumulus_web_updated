@@ -636,11 +636,11 @@ const Voicememo = () => {
           <table className="w-full">
             <thead>
               <tr className="border-t border-b bg-gray-100 text-left text-[0.8rem] md:text-lg">
-                <th className="p-3 font-normal">Voice Name</th>
-                <th className="p-2 font-normal">Duration</th>
-                <th className="p-2 font-normal">Date Uploaded</th>
-                <th className="p-2 font-normal">File Size</th>
-                <th className="p-2 font-normal"></th>
+                <th className="p-3 font-semibold text-slate-500">Voice Name</th>
+                <th className="p-2 font-semibold text-slate-500">Duration</th>
+                <th className="p-2 font-semibold text-slate-500">Date Uploaded</th>
+                <th className="p-2 font-semibold text-slate-500">File Size</th>
+                <th className="p-2 font-semibold text-slate-500"></th>
               </tr>
             </thead>
             <tbody>
@@ -648,7 +648,7 @@ const Voicememo = () => {
                 <React.Fragment key={file._id}>
                   {/* Main Row */}
                   <tr
-                    className={`text-xs sm:text-sm border ${expandedRow === file._id ? "bg-blue-100 border-blue-100" : ""
+                    className={`text-xs sm:text-sm border-b-2 ${expandedRow === file._id ? "bg-blue-100 border-blue-100" : ""
                       } transition-all duration-100`}
                   >
                     <td className="p-0 md:p-4 flex items-center gap-0 md:gap-2">
