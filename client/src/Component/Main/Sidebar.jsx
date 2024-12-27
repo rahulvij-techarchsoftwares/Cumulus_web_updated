@@ -71,9 +71,11 @@ const Sidebar = ({ onFolderSelect }) => {
 
 
   const [editFolderName, setEditFolderName] = useState(""); // State for folder name being edited
-const [editingFolderId, setEditingFolderId] = useState(null); // State to track which folder is being edited
+  const [editingFolderId, setEditingFolderId] = useState(null); // State to track which folder is being edited
 
-
+  const handleClickhelp = () => {
+    navigate('/help'); // Replace '/target-route' with your desired route
+  };
 
   useEffect(() => {
     const getUserData = async () => {
@@ -113,13 +115,13 @@ const [editingFolderId, setEditingFolderId] = useState(null); // State to track 
       setError("New folder name is required.");
       return;
     }
-  
+
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("No token found. Please log in again.");
       }
-  
+
       const response = await axios.post(
         `${API_URL}/api/edit-folder-name`,
         {
@@ -132,7 +134,7 @@ const [editingFolderId, setEditingFolderId] = useState(null); // State to track 
           },
         }
       );
-  
+
       alert(response.data.message); // Show success message
       setEditingFolderId(null); // Close edit mode
       setEditFolderName(""); // Clear input
@@ -324,7 +326,7 @@ const [editingFolderId, setEditingFolderId] = useState(null); // State to track 
           src={logo}
           alt="Cumulus Logo"
           style={{ width: "100%", height: "auto" }}
-          
+
         />
       </div>
 
@@ -413,104 +415,102 @@ const [editingFolderId, setEditingFolderId] = useState(null); // State to track 
           </NavLink>
 
           {(viewAllFolders ? folders : folders.slice(0, 3)).map((folder) => (
-                <NavLink
-                  key={folder.id}
-                  to={`/folder/${folder.id}`}
-                  onClick={(e) => {
-                    if (openMenuId === folder.id) {
-                      e.preventDefault();
-                    } else {
-                      handleFolderSelect(folder);
-                    }
-                  }}
-                  className={({ isActive }) =>
-                    `py-1 px-2 flex items-center rounded cursor-pointer ${isActive ? "bg-blue-500 text-white" : "text-[#434A60]"}`
-                  }
-                >
-                  <div className="flex justify-between w-full relative items-center">
-                    {editingFolderId === folder.id ? (
-                      <>
-                        <input
-                          type="text"
-                          value={editFolderName}
-                          onChange={(e) => setEditFolderName(e.target.value)}
-                          placeholder="Enter new folder name"
-                          className="border p-2 rounded w-full mr-2"
-                        />
-                        <button
-                          className="text-green-500 ml-2"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleEditFolder(); // Save action
-                            setEditingFolderId(null); // Exit editing mode
-                           
-                          }}
-                        >
-                          <Check />
-                        </button>
-                        <button
-                          className="text-red-500 ml-2"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setEditingFolderId(null); // Cancel editing
-                            setEditFolderName(""); // Reset folder name
-                          
-                          }}
-                        >
-                          <X />
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <span className="flex gap-2 items-center truncate-text">
-                          <img
-                            src={FolderNotch}
-                            alt="Folder"
-                            className="h-6 font-bold"
-                          />
-                          {folder.name}
-                        </span>
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            toggleEllipses(folder.id);
-                          
-                          }}
-                        >
-                          <EllipsisVertical className="font-thin h-5" />
-                        </button>
-                      </>
-                    )}
-              
-                    {/* Menu Options */}
-                    {openMenuId === folder.id && !editingFolderId && (
-                      <div className="absolute top-full right-0 mt-2 w-32 bg-white shadow-lg rounded-lg text-black z-20">
-                        <button
-                          className="w-full px-4 py-2 text-left hover:bg-gray-100"
-                          onClick={() => {
-                            setEditingFolderId(folder.id); // Enter editing mode
-                            setEditFolderName(folder.name);
-                            
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="w-full px-4 py-2 text-left hover:bg-gray-100"
-                          onClick={() => {
-                            setDeletebutton(true); // Open Delete Confirmation Modal
-                            setSelectedFolder(folder.id);
-                            
-                             // Set Selected Folder
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
+            <NavLink
+              key={folder.id}
+              to={`/folder/${folder.id}`}
+              onClick={(e) => {
+                if (openMenuId === folder.id) {
+                  e.preventDefault();
+                } else {
+                  handleFolderSelect(folder);
+                }
+              }}
+              className={({ isActive }) =>
+                `py-1 px-2 flex items-center rounded cursor-pointer ${isActive && !editingFolderId && openMenuId !== folder.id
+                  ? "bg-blue-500 text-white"
+                  : "text-[#434A60]"
+                }`
+              }
+            >
+              <div className="flex justify-between w-full relative items-center">
+                {editingFolderId === folder.id ? (
+                  <>
+                    <input
+                      type="text"
+                      value={editFolderName}
+                      onChange={(e) => setEditFolderName(e.target.value)}
+                      placeholder="Enter new folder name"
+                      className="border p-2 rounded w-full mr-2 text-black"
+                    />
+                    <button
+                      className="text-green-500 ml-2"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleEditFolder(); // Save action
+                        setEditingFolderId(null); // Exit editing mode
+                      }}
+                    >
+                      <Check />
+                    </button>
+                    <button
+                      className="text-red-500 ml-2"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setEditingFolderId(null); // Cancel editing
+                        setEditFolderName(""); // Reset folder name
+                      }}
+                    >
+                      <X />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span className="flex gap-2 items-center truncate-text">
+                      <img
+                        src={FolderNotch}
+                        alt="Folder"
+                        className="h-6 font-bold"
+                      />
+                      {folder.name}
+                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        toggleEllipses(folder.id);
+                      }}
+                    >
+                      <EllipsisVertical className="font-thin h-5" />
+                    </button>
+                  </>
+                )}
+
+                {/* Menu Options */}
+                {openMenuId === folder.id && !editingFolderId && (
+                  <div className="absolute top-full right-0 mt-2 w-32 bg-white shadow-lg rounded-lg text-black z-20">
+                    <button
+                      className="w-full px-4 py-2 text-left hover:bg-gray-100"
+                      onClick={() => {
+                        setEditingFolderId(folder.id); // Enter editing mode
+                        setEditFolderName(folder.name);
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="w-full px-4 py-2 text-left hover:bg-gray-100"
+                      onClick={() => {
+                        setDeletebutton(true); // Open Delete Confirmation Modal
+                        setSelectedFolder(folder.id); // Set Selected Folder
+                      }}
+                    >
+                      Delete
+                    </button>
                   </div>
-                </NavLink>
-              ))}
+                )}
+              </div>
+            </NavLink>
+
+          ))}
         </ul>
 
 
@@ -654,8 +654,8 @@ const [editingFolderId, setEditingFolderId] = useState(null); // State to track 
           Add Designer
         </button> */}
 
-        {/* Popup for Adding Designee */}
-        {/* {showDesignerPopup && (
+      {/* Popup for Adding Designee */}
+      {/* {showDesignerPopup && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
             <div className="bg-white p-6 rounded-lg shadow-lg w-96">
               <div className="flex justify-between items-center border-b pb-3">
@@ -713,7 +713,7 @@ const [editingFolderId, setEditingFolderId] = useState(null); // State to track 
               </button> */}
 
 
-            {/* </div>
+      {/* </div>
 
           </div>
         )}
@@ -771,7 +771,7 @@ const [editingFolderId, setEditingFolderId] = useState(null); // State to track 
         >
           <span className="flex ">
             <Users className="" />
-            <h2 className="ml-3">Share With Me</h2>
+            <h2 className="ml-3">Shared With Me</h2>
           </span>
 
         </NavLink>
@@ -780,7 +780,7 @@ const [editingFolderId, setEditingFolderId] = useState(null); // State to track 
       {/* Help & Support */}
       <div className="flex-grow"></div>
       <div className="mt-auto ">
-        <button className="flex w-full  p-2 text-[#667085]  rounded-md ">
+        <button className="flex w-full  p-2 text-[#667085]  rounded-md " onClick={handleClickhelp}>
           <span className="flex gap-2">
             <CircleAlertIcon />
             Help and Support</span>

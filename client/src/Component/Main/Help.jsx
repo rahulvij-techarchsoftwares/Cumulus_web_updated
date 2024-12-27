@@ -27,7 +27,7 @@ const Help = () => {
         "Cumulus uses advanced encryption and security protocols to ensure your documents are safe and secure.",
     },
   ];
-  useEffect(() => {
+
     // Fetch FAQs from the backend
     const fetchFAQs = async () => {
       try {
@@ -47,6 +47,8 @@ const Help = () => {
         console.error('Error fetching FAQs:', error.message);
       }
     };
+
+    useEffect(() => {
     fetchFAQs();
   }, []);
   const handleSend = async () => {
@@ -66,7 +68,9 @@ const Help = () => {
       const data = await response.json();
       if (response.ok) {
         setStatusMessage('Question added successfully!');
+        fetchFAQs();
         setQuestion(''); // Clear the textarea
+        
       } else {
         setStatusMessage(data.message || 'Failed to add question');
       }
@@ -95,8 +99,8 @@ const Help = () => {
           </button>
         </div>
       </div>
-      <div className='overflow-y-auto h-[70vh] w-full border border-gray-300 p-4 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-100'>
-        <div className="flex flex-col md:flex-row gap-6 px-2">
+      <div className='overflow-y-scroll scrollbar-thin mt-2 bg-white h-[70vh] w-full py-0 px-4'>
+        <div className="  flex flex-col md:flex-row gap-6 px-2 my-4">
           <div className="md:w-2/5 flex flex-col w-full gap-6">
             <p className="text-base font-normal text-[#212636]">Watch Demo Video</p>
             <div className="relative group mx-2">
@@ -244,6 +248,6 @@ const Help = () => {
         <span>Terms and Policy</span>
       </div>
     </div>
-  );
+  );  
 };
 export default Help;

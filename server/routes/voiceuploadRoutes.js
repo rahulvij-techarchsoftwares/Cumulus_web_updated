@@ -1,7 +1,8 @@
 const router = require("express").Router();
 const mongoose = require("mongoose");
 const multer = require("multer");
-const { PutObjectCommand, HeadObjectCommand } = require("@aws-sdk/client-s3");
+const { PutObjectCommand, HeadObjectCommand, GetObjectCommand, S3Client } = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner'); 
 const { encryptvoice, decryptvoice } = require("../utilities/voiceencryptionUtils");
 const Voice = require("../models/uservoiceUpload");
 const { authenticateToken } = require("../routes/userRoutes");
@@ -202,6 +203,112 @@ router.delete("/delete-voice", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Error deleting voice memo.", error: error.message });
   }
 });
+
+
+// Route to edit the name of a voice memo
+router.post("/edit-voice-name", authenticateToken, async (req, res) => {
+  const { voice_id, new_voice_name } = req.body; // Voice memo ID and new name for the voice memo
+
+  // Validate input
+  if (!voice_id || !new_voice_name) {
+    return res.status(400).json({ error: "Voice memo ID and new voice name are required" });
+  }
+
+  // Extract user_id from the decoded token
+  const user_id = req.user.user_id; // Extract user_id directly from the authenticated token
+
+  try {
+    // Find the voice memo by ID and ensure it belongs to the authenticated user
+    const voiceMemo = await Voice.findOne({ _id: voice_id, user_id });
+
+    if (!voiceMemo) {
+      return res.status(404).json({ error: "Voice memo not found or access denied" });
+    }
+
+    // Encrypt the new voice name
+    const encryptedVoiceName = encryptvoice(new_voice_name);
+
+    // Update the voice name and its IV
+    voiceMemo.voice_name = encryptedVoiceName.encryptedData;
+    voiceMemo.iv_voice_name = encryptedVoiceName.iv;
+    await voiceMemo.save();
+
+    res.status(200).json({
+      message: "Voice memo name updated successfully",
+      updated_voice: {
+        id: voiceMemo._id,
+        new_voice_name,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error updating voice memo name" });
+  }
+});
+
+
+router.post("/download-voice", authenticateToken, async (req, res) => {
+  const { voice_id } = req.body;  // Extract the voice_id from the request body
+  const user_id = req.user ? req.user.user_id : null;  // Get the user_id from the token
+
+  if (!user_id) {
+    return res.status(401).json({ error: "User ID not found in token" });
+  }
+
+  if (!voice_id) {
+    return res.status(400).json({ error: "Voice ID is required" });
+  }
+
+  try {
+    // Find the voice recording metadata in the database
+    const voiceRecording = await Voice.findOne({ _id: voice_id, user_id });
+    if (!voiceRecording) {
+      return res.status(404).json({ error: "Voice recording not found" });
+    }
+
+    // Decrypt the voice name using the decryptvoice function
+    const decryptedVoiceName = decryptvoice(voiceRecording.voice_name, voiceRecording.iv_voice_name);
+
+    // Decrypt the AWS file link stored in the database
+    const decryptedAwsFileLink = decryptvoice(voiceRecording.aws_file_link, voiceRecording.iv_file_link);
+
+    // Extract the actual file key from the decrypted link (remove the S3 URL part)
+    const fileKey = decryptedAwsFileLink.split("amazonaws.com/")[1]; 
+
+    // Determine the content type and file extension based on the file
+    let contentType = 'audio/mpeg'; // Default to MP3
+    let fileExtension = '.mp3'; // Default to MP3 extension
+    if (fileKey.endsWith('.wav')) {
+      contentType = 'audio/wav'; // Set WAV content type if the file is WAV
+      fileExtension = '.wav'; // Set WAV extension
+    }
+
+    // Ensure the voice name is safe for use in a file download
+    const safeFileName = decryptedVoiceName.replace(/[^a-zA-Z0-9_.-]/g, '_'); // Sanitize the name if necessary
+
+    // Create the S3 download params with 'attachment' to force download
+    const downloadParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileKey,
+      ResponseCacheControl: 'no-store', // Optional: Prevents caching of the file
+      ResponseContentDisposition: `attachment; filename="${safeFileName}${fileExtension}"`, // Use the decrypted voice name
+      ResponseContentType: contentType, // Set the correct content type based on file format
+    };
+
+    // Create the GetObjectCommand for the file download
+    const command = new GetObjectCommand(downloadParams);
+
+    // Generate the pre-signed URL for the download using the getSignedUrl function
+    const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 }); // URL expires in 1 hour
+
+    // Send the signed URL as the response
+    res.json({ downloadUrl: signedUrl });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error generating download URL" });
+  }
+});
+
 
 
 module.exports = router;

@@ -1,10 +1,16 @@
-import React, { useState, useEffect,useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Cookies from 'js-cookie';
 import { motion } from "framer-motion";
 import fetchUserData from "./fetchUserData";
 import { API_URL } from "../utils/Apiconfig";
 import shareicon from "../../assets/ShareIcon.png"
 import fileupload from "../../assets/fileupload.png"
+import editicon from "../../assets/editicon.png"
+import shareicondesignee from "../../assets/shareicondesignee.png"
+import foldericon from "../../assets/foldericon.png"
+import eyeicon from "../../assets/eyeicon.png"
+import trashicon from "../../assets/trashicon.png"
+import downloadicon from "../../assets/downloadicon.png"
 
 import {
 
@@ -289,7 +295,7 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
   const handleSaveFName = async (fileId) => {
     if (!tempFName) return; // If the file name is empty, do nothing
 
-    
+
 
     try {
       // Send request to backend API to update the file name
@@ -1207,7 +1213,7 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
 
       // const token = Cookies.get('token');
       const token = localStorage.getItem("token");
-      
+
       console.log("Retrieved Token:", token);
 
       if (!token) {
@@ -1393,7 +1399,8 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
 
           title="Word Document Viewer"
 
-          style={{ width: "100%", height: "500px", border: "none" }}
+        // style={{ width: "80vw", height: "90vh", border: "none" }}
+        // className="max-w-7xl "
 
         />
 
@@ -1442,64 +1449,62 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
   const renderOverlay = () => (
 
     <div
+      className="fixed top-0 left-0  w-[100vw] h-[100%] bg-[rgba(0,0,0,0.8)] text-white  z-[1000] flex justify-center items-center"
+    // style={{
 
-      style={{
+    //   position: "fixed",
 
-        position: "fixed",
+    //   top: 50,
 
-        top: 0,
+    //   left: 50,
 
+    //   width: "150vw",
 
+    //   height: "100vh",
 
-        left: 0,
+    //   backgroundColor: "rgba(0, 0, 0, 0.8)",
 
-        width: "100%",
+    //   color: "#fff",
 
-        height: "100%",
+    //   display: "flex",
 
-        backgroundColor: "rgba(0, 0, 0, 0.8)",
+    //   // flexDirection: "column",
 
-        color: "#fff",
+    //   // justifyContent: "center",
 
-        display: "flex",
+    //   // alignItems: "center",
 
-        flexDirection: "column",
+    //   zIndex: 1000,
 
-        justifyContent: "center",
-
-        alignItems: "center",
-
-        zIndex: 1000,
-
-      }}
+    // }}
 
     >
 
-      <div
+      <div className="bg-white text-black p-5 rounded-lg max-w-[90%] max-h-[90%] overflow-y-auto relative w-[80%] h-auto"
 
-        style={{
+      // style={{
 
-          backgroundColor: "#fff",
+      //   backgroundColor: "#fff",
 
-          color: "#000",
+      //   color: "#000",
 
-          padding: "20px",
+      //   padding: "20px",
 
-          borderRadius: "10px",
+      //   borderRadius: "10px",
 
-          maxWidth: "90%",
+      //   maxWidth: "90%",
 
-          maxHeight: "90%",
+      //   maxHeight: "90%",
 
-          overflowY: "auto",
+      //   overflowY: "auto",
 
-          position: "relative",
+      //   position: "relative",
 
-          width: "50%",
+      //   width: "80%",
 
-          height: "auto",
+      //   height: "auto",
 
-        }}
+      // }}
 
       >
 
@@ -1508,14 +1513,14 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
         {renderFileContent()}
 
         <button
-
-          style={{
+          className="absolute top-[10px] right-[10px] bg-red-500 text-white border-none px-[10px] py-[2px] rounded"
+          onClick={() => setShowOverlay(false)}
+        >
+          {/* style={{
 
             position: "absolute",
 
             top: "10px",
-
-
 
             right: "10px",
 
@@ -1525,15 +1530,15 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
 
             border: "none",
 
-            padding: "5px 10px",
+            padding: "2px 10px",
 
             borderRadius: "5px",
 
           }}
 
-          onClick={() => setShowOverlay(false)}
+          */}
 
-        >
+
 
           X
 
@@ -1675,18 +1680,18 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
             </div>
           </div>
 
-          
+
           {!(folderId === "0" || folderId === 1) ? (
-              <div className="flex items-center md:gap-2 mb-1 border-2 border-blue-500 rounded-lg cursor-pointer">
-                <div className="h-4 text-blue-500 flex items-center justify-center pl-1">
-                  <img className="h-6" src={shareicon} alt="" />
-                </div>
-                <p className="text-md md:text-xl text-blue-500 rounded-md py-2 px-2">Share Folder</p>
-              </div>  
-            ) : null}
+            <div className="flex items-center md:gap-2 mb-1 border-2 border-blue-500 rounded-lg cursor-pointer">
+              <div className="h-4 text-blue-500 flex items-center justify-center pl-1">
+                <img className="h-4" src={shareicon} alt="" />
+              </div>
+              <p className="text-md md:text-xl text-blue-500 rounded-md py-2 px-2">Share Folder</p>
+            </div>
+          ) : null}
 
         </div>
-        
+
       ) : (
         <p className="text-center text-gray-500"></p>
       )}
@@ -1725,9 +1730,9 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
 
                     {/* Dropdown Menu */}
                     {openMenuId === file._id && (
-                      
+
                       <motion.div
-                      ref={menuRef}
+                        ref={menuRef}
                         className="absolute top-5 right-6 mt-2 w-48 bg-white shadow-lg rounded-lg text-black flex flex-col gap-y-2 p-2 z-50 "
                         initial={{ opacity: 0, scale: 0.9, y: -10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1743,7 +1748,8 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                                 setOpenMenuId(null); // Close menu after selecting
                               }}
                             >
-                              <Users className="h-4" />
+                              {/* <Users className="h-4" /> */}
+                              <img src={shareicondesignee} alt="" className="h-4" />
                               Share
                             </button>
 
@@ -1754,7 +1760,8 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                                 setOpenMenuId(null); // Close menu after selecting
                               }}
                             >
-                              <Folder className="h-4" />
+                              {/* <Folder className="h-4" /> */}
+                              <img src={foldericon} alt="" className="h-4" />
                               Access
                             </button>
 
@@ -1766,20 +1773,22 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                                 setOpenMenuId(null); // Close menu after selecting
                               }}
                             >
-                              <Edit className="h-4" />
+                              <img src={editicon} alt="" className="h-4 " />
+                              {/* <Edit className="h-4" /> */}
                               Edit
                             </button>
 
 
                             <button
-                              className="flex items-center gap-2 text-gray-600 hover:text-red-500"
+                              className="flex items-center gap-2  text-gray-600 hover:text-red-500"
                               onClick={() => {
                                 setDeletebutton(true);
                                 setSelectedFileId(file._id); // Set the file ID to the state
                                 setOpenMenuId(null); // Close menu after selecting
                               }}
                             >
-                              <Trash2 className="h-4" />
+                              {/* <Trash2 className="h-4" /> */}
+                              <img src={trashicon} alt="" className="h-4" />
                               Delete
                             </button>
                           </>
@@ -1792,17 +1801,19 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                             setOpenMenuId(null); // Close menu after selecting
                           }}
                         >
-                          <Eye className="h-4" />
+                          {/* <Eye className="h-4" /> */}
+                          <img src={eyeicon} alt="" className="h-4" />
                           View Content
                         </button>
                         <button
                           className="flex items-center gap-2 text-gray-600 hover:text-blue-500"
                           onClick={() => {
                             handleDownloadFile(file._id);
-                            setOpenMenuId(null); // Close menu after selecting
+                            setOpenMenuId(null);
                           }}
                         >
-                          <Download className="h-4" />
+                          {/* <Download className="h-4 font-extrabold" /> */}
+                          <img src={downloadicon} alt="" className="h-4" />
                           Download
                         </button>
                       </motion.div>
@@ -1854,7 +1865,7 @@ Contact:
 </span> */}
 
                   <span className="flex justify-between">
-                   
+
                     <p className="text-sm text-gray-600">Sharing contact: {file.folder_contact}</p>
                   </span>
 
@@ -1907,42 +1918,40 @@ Contact:
 
                       <React.Fragment key={file._id}>
                         {/* Main Row */}
-<tr
-  className={`text-xs sm:text-sm border-b-2 ${
-    isExpanded ? "bg-blue-100 border-blue-100" : ""
-  } transition-all duration-100`}
->
-  <td className="p-0 md:p-4 flex items-center gap-0 md:gap-2">
-    <button
-      className="text-gray-500 hover:text-gray-800"
-      onClick={() => handleToggleRow(file._id)}
-    >
-      <ChevronDown
-        className={`${
-          isExpanded ? "rotate-180" : ""
-        } h-5 transition-transform`}
-      />
-    </button>
-    {editingFileId === file._id ? (
-      <div className="flex items-center gap-2">
-        <input
-          type="text"
-          value={tempFileName}
-          onChange={(e) => setTempFileName(e.target.value)}
-          className="border border-gray-300 rounded p-1"
-          autoFocus
-        />
-        <button
-          className="text-green-500 hover:text-green-700"
-          onClick={() => handleSaveFileName(file._id)} // Save file name
-        >
-          <Check className="h-5" />
-        </button>
-      </div>
-    ) : (
-      <div className="flex items-center gap-2">
-        {file.file_name}
-        {/* <button
+                        <tr
+                          className={`text-xs sm:text-sm border-b-2 ${isExpanded ? "bg-blue-100 border-blue-100" : ""
+                            } transition-all duration-100`}
+                        >
+                          <td className="p-0 md:p-4 flex items-center gap-0 md:gap-2">
+                            <button
+                              className="text-gray-500 hover:text-gray-800"
+                              onClick={() => handleToggleRow(file._id)}
+                            >
+                              <ChevronDown
+                                className={`${isExpanded ? "rotate-180" : ""
+                                  } h-5 transition-transform`}
+                              />
+                            </button>
+                            {editingFileId === file._id ? (
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  value={tempFileName}
+                                  onChange={(e) => setTempFileName(e.target.value)}
+                                  className="border border-gray-300 rounded p-1"
+                                  autoFocus
+                                />
+                                <button
+                                  className="text-green-500 hover:text-green-700"
+                                  onClick={() => handleSaveFileName(file._id)} // Save file name
+                                >
+                                  <Check className="h-5" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                {file.file_name}
+                                {/* <button
           className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
           onClick={() => setEditingFileId(file._id)} // Start editing
         >
@@ -1951,45 +1960,44 @@ Contact:
             Edit Document
           </span>
         </button> */}
-      </div>
-    )}
-  </td>
+                              </div>
+                            )}
+                          </td>
 
-  <td className="p-0 md:p-4">
-    <div
-      className={`bg-[#EEEEEF] rounded-xl px-3 py-1 text-[1rem] inline-block transition-all duration-300 ${
-        isExpanded ? "bg-white" : "bg-[#EEEEEF]"
-      }`}
-    >
-      {folderId === 1
-        ? "Cumulus"
-        : folderId === 0
-        ? "Allfiles"
-        : files[0]?.folder_name || "All files"}
-    </div>
-  </td>
-  <td className="p-0 md:p-4">
-    <p className="text-xs sm:text-sm text-gray-600 mt-1">
-      {file.date_of_upload &&
-      !isNaN(new Date(file.date_of_upload))
-        ? new Date(file.date_of_upload).toLocaleString("en-US", {
-            weekday: "short",
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-            hour12: true, // for 12-hour format
-          })
-        : "Invalid Date"}
-    </p>
-  </td>
-  <td className="p-0 md:p-4">{file.sharing_contacts}</td>
-</tr>
+                          <td className="p-0 md:p-4">
+                            <div
+                              className={`bg-[#EEEEEF] rounded-xl px-3 py-1 text-[1rem] inline-block transition-all duration-300 ${isExpanded ? "bg-white" : "bg-[#EEEEEF]"
+                                }`}
+                            >
+                              {folderId === 1
+                                ? "Cumulus"
+                                : folderId === 0
+                                  ? "Allfiles"
+                                  : files[0]?.folder_name || "All files"}
+                            </div>
+                          </td>
+                          <td className="p-0 md:p-4">
+                            <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                              {file.date_of_upload &&
+                                !isNaN(new Date(file.date_of_upload))
+                                ? new Date(file.date_of_upload).toLocaleString("en-US", {
+                                  weekday: "short",
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "numeric",
+                                  minute: "numeric",
+                                  hour12: true, // for 12-hour format
+                                })
+                                : "Invalid Date"}
+                            </p>
+                          </td>
+                          <td className="p-0 md:p-4">{file.sharing_contacts}</td>
+                        </tr>
 
                         {/* Expanded Row */}
                         {isExpanded && (
-                          <tr>
+                          <tr className="z-10">
                             <td colSpan="5" className="p-4 border-l border-r border border-blue-100 bg-blue-100">
                               <div className="flex gap-4 items-center">
                                 {!need && (
@@ -1998,8 +2006,9 @@ Contact:
                                       className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
                                       onClick={() => setShare(true)}
                                     >
-                                      <Users className="h-4" />
-                                      <span className="absolute bottom-[-45px] left-2/3  transform -translate-x-1/2 hidden min-w-[110px] group-hover:block bg-white text-black text-xs py-1 px-1 rounded shadow">
+                                      {/* <Users className="h-4" /> */}
+                                      <img src={shareicondesignee} alt="" className="h-4" />
+                                      <span className="absolute bottom-[-45px] left-2/3  transform -translate-x-1/2 hidden min-w-[110px] group-hover:block bg-white text-black text-xs py-1 px-1 rounded shadow z-20">
                                         Share with Designee
                                       </span>
                                     </button>
@@ -2007,20 +2016,22 @@ Contact:
                                       className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
                                       onClick={() => setAccess(true)}
                                     >
-                                      <Folder className="h-4" />
-                                      <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block min-w-[80px] bg-white text-black text-xs py-1 px-2 rounded shadow">
+                                      {/* <Folder className="h-4" /> */}
+                                      <img src={foldericon} alt="" className="h-4" />
+                                      <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block min-w-[80px] bg-white text-black text-xs py-1 px-2 rounded shadow z-20">
                                         Full Access
                                       </span>
                                     </button>
                                     <button
-              className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
-              onClick={() => setEditingFileId(file._id)} // Trigger editing on main row
-            >
-              <Edit className="h-4" />
-              <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white min-w-[100px] text-black text-xs py-1 px-1 rounded shadow">
-                Edit Document
-              </span>
-            </button>
+                                      className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
+                                    //onClick={() => setEditingFileId(file._id)} 
+                                    >
+                                      {/* <Edit className="h-4" /> */}
+                                      <img src={editicon} alt="" className="h-4" />
+                                      <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white min-w-[100px] text-black text-xs py-1 px-1 rounded shadow z-20">
+                                        Edit Document
+                                      </span>
+                                    </button>
                                     <button
                                       className="relative group flex items-center gap-2 text-gray-600 hover:text-red-500"
                                       onClick={() => {
@@ -2029,8 +2040,10 @@ Contact:
                                         setSelectedFileId(file._id);
                                       }}
                                     >
-                                      <Trash2 className="h-4 text-red-700" />
-                                      <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow">
+                                      {/* <Trash2 className="h-4 text-red-700" /> */}
+                                      <img src={trashicon} alt="" className="h-4" />
+
+                                      <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow z-20">
                                         Delete
                                       </span>
                                     </button>
@@ -2043,8 +2056,9 @@ Contact:
                                   className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
                                   onClick={() => fetchFileContent(file._id)}
                                 >
-                                  <Eye className="h-4" />
-                                  <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow">
+                                  {/* <Eye className="h-4" /> */}
+                                  <img src={eyeicon} alt="" className="h-4" />
+                                  <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow z-20">
                                     View
                                   </span>
                                 </button>
@@ -2052,8 +2066,9 @@ Contact:
                                   className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
                                   onClick={() => handleDownloadFile(file._id)}
                                 >
-                                  <Download className="h-4" />
-                                  <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow">
+                                  {/* <Download className="h-4" /> */}
+                                  <img src={downloadicon} alt="" className="h-4" />
+                                  <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow z-20">
                                     Download
                                   </span>
                                 </button>
@@ -2130,7 +2145,8 @@ Contact:
 
                             >
 
-                              <Users className="h-4" />
+                              {/* <Users className="h-4" /> */}
+                              <img src={shareicondesignee} alt="" className="h-4" />
 
                             </button>
 
@@ -2146,7 +2162,8 @@ Contact:
 
                             >
 
-                              <Folder className="h-4" />
+                              {/* <Folder className="h-4" /> */}
+                              <img src={foldericon} alt="" className="h-4" />
 
                             </button>
 
@@ -2162,8 +2179,8 @@ Contact:
 
                             >
 
-                              <Edit className="h-4" />
-
+                              {/* <Edit className="h-4" /> */}
+                              <img src={editicon} alt="" className="h-4" />
                             </button>
 
 
@@ -2178,8 +2195,8 @@ Contact:
 
                             >
 
-                              <Eye className="h-4" />
-
+                              {/* <Eye className="h-4" /> */}
+                              <img src={eyeicon} alt="" className="h-4 " />
                             </button>
 
 
@@ -2202,7 +2219,8 @@ Contact:
 
                             >
 
-                              <Trash2 className="h-4" />
+                              {/* <Trash2 className="h-4" /> */}
+                              <img src={trashicon} alt="" className="h-4" />
 
                             </button>
 
@@ -2218,7 +2236,8 @@ Contact:
 
                             >
 
-                              <Download className="h-4" />
+                              {/* <Download className="h-4" /> */}
+                              <img src={downloadicon} alt="" className="h-4" />
 
                             </button>
 
@@ -2252,7 +2271,7 @@ Contact:
           files.map((file) => (
 
             <div
-           
+
               key={file._id}
 
               className="bg-white p-4 rounded border "
@@ -2290,7 +2309,7 @@ Contact:
                 {/* Dropdown Menu */}
                 {openMenuId === file._id && (
                   <motion.div
-                  ref={menuRef}
+                    ref={menuRef}
                     className="absolute top-8  mt-2 w-48 bg-white shadow-lg rounded-lg text-black flex flex-col gap-y-2 p-2 z-50 "
                     initial={{ opacity: 0, scale: 0.9, y: -10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -2306,7 +2325,8 @@ Contact:
                             setOpenMenuId(null); // Close menu after selecting
                           }}
                         >
-                          <Users className="h-4" />
+                          {/* <Users className="h-4" /> */}
+                          <img src={shareicondesignee} alt="" className="h-4" />
                           Share
                         </button>
 
@@ -2317,7 +2337,8 @@ Contact:
                             setOpenMenuId(null); // Close menu after selecting
                           }}
                         >
-                          <Folder className="h-4" />
+                          {/* <Folder className="h-4" /> */}
+                          <img src={foldericon} alt="" className="h-4" />
                           Access
                         </button>
 
@@ -2329,7 +2350,8 @@ Contact:
                             setOpenMenuId(null); // Close menu after selecting
                           }}
                         >
-                          <Edit className="h-4" />
+                          {/* <Edit className="h-4" /> */}
+                          <img src={editicon} alt="" className="h-4 " />
                           Edit
                         </button>
 
@@ -2342,7 +2364,9 @@ Contact:
                             setOpenMenuId(null); // Close menu after selecting
                           }}
                         >
-                          <Trash2 className="h-4" />
+                          {/* <Trash2 className="h-4" /> */}
+                          <img src={trashicon} alt="" className="h-4" />
+
                           Delete
                         </button>
                       </>
@@ -2355,7 +2379,8 @@ Contact:
                         setOpenMenuId(null); // Close menu after selecting
                       }}
                     >
-                      <Eye className="h-4" />
+                      {/* <Eye className="h-4" /> */}
+                      <img src={eyeicon} alt="" className="h-4 " />
                       View Content
                     </button>
                     <button
@@ -2365,7 +2390,8 @@ Contact:
                         setOpenMenuId(null); // Close menu after selecting
                       }}
                     >
-                      <Download className="h-4" />
+                      {/* <Download className="h-4" /> */}
+                      <img src={downloadicon} alt="" className="h-4" />
                       Download
                     </button>
                   </motion.div>
@@ -2426,7 +2452,7 @@ Contact:
 
               </span>
 
-              
+
 
               <div className="mt-2 flex gap-2">
 
@@ -2582,7 +2608,8 @@ Contact:
 
                         >
 
-                          <Trash2 className="stroke-red-600 h-10" />
+                          {/* <Trash2 className="stroke-red-600 h-10" /> */}
+                          <img src={trashicon} alt="" className="h-4" />
 
                         </button>
 
@@ -2622,7 +2649,7 @@ Contact:
 
               >
 
-                <Loader2 className="animate-spin h-6 w-6 font-bold" />
+                <Loader2 className="animate-spin h-4 w-6 font-bold" />
 
               </button>) : (<button
 
@@ -3162,7 +3189,7 @@ Contact:
 
               >
 
-                <X className="w-6 h-6 text-gray-700 hover:text-red-500" />
+                <X className="w-6 h-4 text-gray-700 hover:text-red-500" />
 
               </button>
 
@@ -3463,7 +3490,7 @@ Contact:
             <div className="mt-4">
               <div className="flex items-center justify-center mb-4">
                 <div className="w-24 h-24 rounded-full border-dashed border-2 flex items-center justify-center text-gray-500">
-                  <Camera className="h-6 w-6" />
+                  <Camera className="h-4 w-6" />
                 </div>
               </div>
               <label className="block mb-2 text-sm font-medium">

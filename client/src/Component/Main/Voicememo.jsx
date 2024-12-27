@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from "framer-motion";
-import { ArrowRight, Menu, LayoutGrid, X, ChevronDown, Users, Edit, Eye, Trash2, EllipsisVertical } from 'lucide-react';
+import { ArrowRight, Menu, LayoutGrid, X, ChevronDown, Users, Edit, Eye, Trash2, EllipsisVertical, Download } from 'lucide-react';
 import Cookies from 'js-cookie';
 import fetchUserData from './fetchUserData';
 import play from "../../assets/Play.png"
@@ -55,6 +55,54 @@ const Voicememo = () => {
   const [deletebutton1, setDeletebutton1] = useState(false);
   const [selectedFileId, setSelectedFileId] = useState(null);
   const [users, setUsers] = useState([]);
+
+
+
+  const [editsMode, setEditsMode] = useState(null); 
+const [newVoicesName, setNewVoicesName] = useState(""); 
+
+const handleEdits= (id, currentName) => { 
+  setEditsMode(id);
+  setNewVoicesName(currentName);
+};
+
+
+const handleSaveEdits = async (id) => {
+  try {
+    // const token = Cookies.get('token');
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.log("No token found. Please log in.");
+      return;
+    }
+    const response = await fetch(`${API_URL}/api/voice-memo/edit-voice-name`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        voice_id: id,
+        new_voice_name: newVoicesName,
+      }),
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      // alert("Voice name updated successfully");
+      setEditsMode(null);
+      // Optionally, refresh the list of files
+    } else {
+      alert(result.error || "Failed to update voice name");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Error updating voice name");
+  }
+};
+
+
 
 
   const handleEllipsisClick = (index) => {
@@ -241,7 +289,46 @@ const Voicememo = () => {
 
 
 
-
+  const handleDownloadFile = async (fileId) => {
+    try {
+      // Find the file object from the list of files
+      const file = audioFiles.find((f) => f._id === fileId);
+      if (!file) {
+        console.error("File not found");
+        return;
+      }
+  
+      // Make the API request to get the signed URL for download
+      const response = await fetch(`${API_URL}/api/voice-memo/download-voice`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`, // Assuming you're using a token for authentication
+        },
+        body: JSON.stringify({ voice_id: file._id }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to get download URL");
+      }
+  
+      const data = await response.json();
+      const { downloadUrl } = data;
+  
+      if (downloadUrl) {
+        // Trigger the download by creating a link and simulating a click
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.download = file.voice_name || "download";  // Use the voice name as the file name
+        link.click();
+      } else {
+        console.error("Download URL not found in response");
+      }
+    } catch (error) {
+      console.error("Error during download:", error);
+    }
+  };
+  
 
 
   const saveRecording = async () => {
@@ -646,35 +733,55 @@ const Voicememo = () => {
             <tbody>
               {audioFiles.map((file, index) => (
                 <React.Fragment key={file._id}>
-                  {/* Main Row */}
-                  <tr
-                    className={`text-xs sm:text-sm border-b-2 ${expandedRow === file._id ? "bg-blue-100 border-blue-100" : ""
-                      } transition-all duration-100`}
-                  >
-                    <td className="p-0 md:p-4 flex items-center gap-0 md:gap-2">
-                      <button
-                        className="text-gray-500 hover:text-gray-800"
-                        onClick={() => handleToggleRow(file._id)}
-                      >
-                        <ChevronDown
-                          className={`${expandedRow === file._id ? "rotate-180" : ""
-                            } h-5 transition-transform`}
+                {/* Main Row */}
+                <tr
+                  className={`text-xs sm:text-sm border-b-2 ${
+                    expandedRow === file._id ? "bg-blue-100 border-blue-100" : ""
+                  } transition-all duration-100`}
+                >
+                  <td className="p-0 md:p-4 flex items-center gap-0 md:gap-2">
+                    <button
+                      className="text-gray-500 hover:text-gray-800"
+                      onClick={() => handleToggleRow(file._id)}
+                    >
+                      <ChevronDown
+                        className={`${
+                          expandedRow === file._id ? "rotate-180" : ""
+                        } h-5 transition-transform`}
+                      />
+                    </button>
+                    {editsMode === file._id ? (
+                      <div className="flex items-center gap-2 border-b-2 border-blue-500 pt-2">
+                        <input
+                          type="text"
+                          value={newVoicesName}
+                          onChange={(e) => setNewVoicesName(e.target.value)}
+                          className="border rounded px-2 py-1 text-sm w-full bg-transparent outline-none"
                         />
-                      </button>
-                      {file.voice_name}
-                    </td>
-                    <td className="p-0 md:p-4">
-                      <div className={`bg-[#EEEEEF] rounded-md px-3 py-1 inline-block transition-all duration-300 ${expandedRow ? "bg-white" : "bg-[#EEEEEF]"
-                        }`}>
-
-                        {file.duration} sec
+                        <button
+                          className="text-blue-500 hover:text-blue-700 px-3 py-1 bg-gray-100 rounded-md bg-transparent"
+                          onClick={() => handleSaveEdits(file._id)}
+                        >
+                          Save
+                        </button>
                       </div>
-                    </td>
-                    <td className="p-0 md:p-4">
-                      <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                        {file.date_of_upload &&
-                          !isNaN(new Date(file.date_of_upload))
-                          ? new Date(file.date_of_upload).toLocaleString("en-US", {
+                    ) : (
+                      file.voice_name
+                    )}
+                  </td>
+                  <td className="p-0 md:p-4">
+                    <div
+                      className={`bg-[#EEEEEF] rounded-md px-3 py-1 inline-block transition-all duration-300 ${
+                        expandedRow ? "bg-white" : "bg-[#EEEEEF]"
+                      }`}
+                    >
+                      {file.duration} sec
+                    </div>
+                  </td>
+                  <td className="p-0 md:p-4">
+                    <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                      {file.date_of_upload && !isNaN(new Date(file.date_of_upload))
+                        ? new Date(file.date_of_upload).toLocaleString("en-US", {
                             weekday: "short",
                             year: "numeric",
                             month: "short",
@@ -683,67 +790,86 @@ const Voicememo = () => {
                             minute: "numeric",
                             hour12: true,
                           })
-                          : "Invalid Date"}
-                      </p>
-                    </td>
-                    <td className="p-0 md:p-4">
-                      <span className={`bg-[#EEEEEF] p-2 rounded-md  ${expandedRow ? "bg-white" : "bg-[#EEEEEF]"
-                        }`}>{file.file_size} Kb</span>
+                        : "Invalid Date"}
+                    </p>
+                  </td>
+                  <td className="p-0 md:p-4">
+                    <span
+                      className={`bg-[#EEEEEF] p-2 rounded-md ${
+                        expandedRow ? "bg-white" : "bg-[#EEEEEF]"
+                      }`}
+                    >
+                      {file.file_size} Kb
+                    </span>
+                  </td>
+                  <td className="p-0 md:p-4">
+                    <button
+                      onClick={() => handlePlay(file)}
+                      className={`px-2 py-1 bg-[#EEEEEF] text-black font-semibold rounded-md ${
+                        expandedRow ? "bg-white" : "bg-[#EEEEEF]"
+                      }`}
+                    >
+                      <span className="flex">
+                        <img src={play} alt="" className="h-5 gap-1" />
+                        Play
+                      </span>
+                    </button>
+                  </td>
+                </tr>
+                {/* Expanded Row */}
+                {expandedRow === file._id && (
+                  <tr>
+                    <td
+                      colSpan="5"
+                      className="p-4 border-l border-r border border-blue-100 bg-blue-100"
+                    >
+                      <div className="flex gap-4 items-center">
+                        <button
+                          className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
+                          onClick={() => setShare(true)}
+                        >
+                          <Users className="h-4" />
+                          <span className="absolute bottom-[-40px] z-40 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white w-24 text-black text-xs py-1 px-2 rounded shadow">
+                            Share with Designee
+                          </span>
+                        </button>
+                        <button
+                          className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
+                          onClick={() => handleEdits(file._id, file.voice_name)}
+                        >
+                          <Edit className="h-4" />
+                          <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white w-24 text-black text-xs py-1 px-2 rounded shadow">
+                            Edit Document
+                          </span>
+                        </button>
+                        <button
+                          className="relative group flex items-center gap-2 text-gray-600 hover:text-red-500"
+                          onClick={() => {
+                            setSelectedFileId(file._id);
+                            setDeletebutton(true);
+                          }}
+                        >
+                          <Trash2 className="h-4 text-red-700" />
+                          <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow">
+                            Delete
+                          </span>
+                        </button>
 
-                    </td>
-                    <td className="p-0 md:p-4">
-                      <button
-                        onClick={() => handlePlay(file)}
-                        className={`px-2 py-1 bg-[#EEEEEF] text-black font-semibold rounded-md ${expandedRow ? "bg-white" : "bg-[#EEEEEF]"
-                          }`}>
-                        <span className='flex'>
-                          <img src={play} alt="" className='h-5 gap-1' />
-                          Play
-                        </span>
-
-                      </button>
+                        <button
+                                  className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
+                                  onClick={() => handleDownloadFile(file._id)}
+                                >
+                                  <Download className="h-4" />
+                                  <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow">
+                                    Download
+                                  </span>
+                                </button>
+                      </div>
                     </td>
                   </tr>
-                  {/* Expanded Row */}
-                  {expandedRow === file._id && (
-                    <tr>
-                      <td
-                        colSpan="5"
-                        className="p-4 border-l border-r border border-blue-100 bg-blue-100"
-                      >
-                        <div className="flex gap-4 items-center">
-                          <button
-                            className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
-                            onClick={() => setShare(true)}
-                          >
-                            <Users className="h-4" />
-                            <span className="absolute bottom-[-40px] z-40 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white w-24 text-black text-xs py-1 px-2 rounded shadow">
-                              Share with Designee
-                            </span>
-                          </button>
-                          <button className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500">
-                            <Edit className="h-4" />
-                            <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white w-24 text-black text-xs py-1 px-2 rounded shadow">
-                              Edit Document
-                            </span>
-                          </button>
-                          <button
-                            className="relative group flex items-center gap-2 text-gray-600 hover:text-red-500"
-                            onClick={() => {
-                              setSelectedFileId(file._id);
-                              setDeletebutton(true);
-                            }}
-                          >
-                            <Trash2 className="h-4 text-red-700" />
-                            <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow">
-                              Delete
-                            </span>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </React.Fragment>
+                )}
+              </React.Fragment>              
+              
               ))}
             </tbody>
           </table>

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import Cookies from "js-cookie";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import editicon from "../../assets/edit-icon.png";
@@ -19,8 +21,9 @@ const Profile = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [profilePicture, setProfilePicture] = useState("default-avatar.png");
+  const navigate = useNavigate();
   // Fetch user details on component mount
-  useEffect(() => {
+ 
     const fetchUserDetails = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -55,9 +58,54 @@ const Profile = () => {
         setProfilePicture("default-avatar.png");
       }
     };
+
+
+  useEffect(() => {
     fetchProfilePicture();
     fetchUserDetails();
   }, []);
+
+
+  async function logout() {
+    try {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            throw new Error("No token found. Please log in again.");
+        }
+
+        const apiUrl = `${API_URL}/api/auth/signout`;
+
+        const headers = {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        };
+
+        const response = await fetch(apiUrl, { method: "POST", headers });
+
+        if (!response.ok) {
+            throw new Error("Failed to log out. Please try again.");
+        }
+
+        // Clear token from localStorage
+        localStorage.removeItem("token");
+
+        // Clear cookies if used
+        Cookies.remove("token");
+
+        // Prevent cached pages from being accessed
+        window.history.pushState(null, null, window.location.href);
+        window.addEventListener("popstate", () => {
+            window.history.pushState(null, null, window.location.href);
+        });
+
+        // Redirect to the login page
+        navigate("/Login");
+    } catch (error) {
+        console.error(error);
+    }
+}
+
   // Handle profile picture upload
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
@@ -87,6 +135,7 @@ const Profile = () => {
 
         if (response.status === 200) {
           alert("Profile picture updated successfully!");
+          fetchProfilePicture();
         }
       } catch (error) {
         console.error("Error uploading profile picture:", error);
@@ -124,6 +173,7 @@ const Profile = () => {
       if (response.ok) {
         alert(data.message); // Show success message
         setIsEditMode(false); // Exit edit mode
+        fetchUserDetails();
       } else {
         alert(data.message); // Show error message
       }
@@ -323,7 +373,7 @@ const Profile = () => {
                   </span>
                   <h2 className="text-lg font-semibold ml-2">Log Out of Your Account</h2>
                 </div>
-                <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg my-2">
+                <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg my-2" onClick={logout}>
                   Log Out
                 </button>
                 <p className="text-gray-500 my-2">
