@@ -13,6 +13,8 @@ import filefolder from "../../assets/files-folder.png";
 import security from "../../assets/security.png";
 import { API_URL } from "../utils/Apiconfig";
 const Profile = () => {
+  const [folderSize, setFolderSize] = useState(null);
+  const [error, setError] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [userDetails, setUserDetails] = useState({
     name: "",
@@ -23,6 +25,41 @@ const Profile = () => {
   const [profilePicture, setProfilePicture] = useState("default-avatar.png");
   const navigate = useNavigate();
   // Fetch user details on component mount
+
+  useEffect(() => {
+    // Fetch folder size from the backend API
+    const fetchFolderSize = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/get-folder-size`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`, // Include JWT token if required
+          },
+        });
+
+        const totalSizeKB = response.data.totalSizeKB; // Get size in KB
+        let displaySize;
+        let unit;
+
+        if (totalSizeKB < 1024) {
+          displaySize = totalSizeKB.toFixed(2);
+          unit = 'KB';
+        } else if (totalSizeKB < 1024 * 1024) {
+          displaySize = (totalSizeKB / 1024).toFixed(2);
+          unit = 'MB';
+        } else {
+          displaySize = (totalSizeKB / 1024 / 1024).toFixed(2);
+          unit = 'GB';
+        }
+
+        setFolderSize({ value: displaySize, unit });
+      } catch (err) {
+        console.error('Error fetching folder size:', err);
+        setError('Failed to retrieve folder size');
+      }
+    };
+
+    fetchFolderSize();
+  }, []);
  
     const fetchUserDetails = async () => {
       try {
@@ -185,10 +222,10 @@ const Profile = () => {
   return (
     <div className="bg-gray-50 p-6">
       <div className="mx-auto">
-        <div className="flex items-center mb-6">
+        {/* <div className="flex items-center mb-6">
           <i className="fas fa-arrow-left text-gray-500 mr-2"></i>
           <span className="text-[#212636]">Back</span>
-        </div>
+        </div> */}
         <div className="bg-white p-6 rounded-lg shadow-md">
           <div className="flex items-center mb-6 gap-4">
             {/* Profile Picture */}
@@ -333,10 +370,19 @@ const Profile = () => {
                   <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
                     <div
                       className="bg-blue-600 h-2.5 rounded-full"
-                      style={{ width: "52.35%" }}
+                      style={{ width: "0.5%" }}
                     ></div>
                   </div>
-                  <p className="text-gray-500">10.47 GB of 20 GB</p>
+                  {/* <p className="text-gray-500">10.47 GB of 20 GB</p> */}
+                  {error ? (
+        <p className="text-red-500">{error}</p>
+      ) : folderSize !== null ? (
+        <p className="text-gray-500">
+          {folderSize.value} {folderSize.unit} of 20 GB
+        </p>
+      ) : (
+        <p className="text-gray-500">Loading...</p>
+      )}
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold">Storage Used</h2>
                   </div>

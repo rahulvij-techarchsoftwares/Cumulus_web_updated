@@ -843,7 +843,7 @@ const MobileSidebar = ({ onFolderSelect }) => {
           {/* Shared Files */}
 
           <div className="">
-            <h2 className="font-semibold text-[#667085] text-sm mt-2">Share file</h2>
+            <h2 className="font-semibold text-[#667085] text-sm mt-2">Shared file</h2>
             <NavLink
               to="/SharedFiles"
               className={({ isActive }) =>

@@ -760,7 +760,7 @@ const Sidebar = ({ onFolderSelect }) => {
       {/* Shared Files */}
 
       <div className="">
-        <h2 className="font-semibold text-[#667085] mt-3">Share file</h2>
+        <h2 className="font-semibold text-[#667085] mt-3">Shared file</h2>
         <NavLink
           to="/SharedFiles"
           onClick={() => setOpenMenuId(null)}
