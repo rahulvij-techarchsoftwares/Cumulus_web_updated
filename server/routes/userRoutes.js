@@ -609,21 +609,19 @@ const upload = multer({ storage: storage });
 router.post(
   "/uploadProfilePicture",
   authenticateToken,
-  upload.single("profilePicture"), // Upload a single file with the field name 'profilePicture'
+  upload.single("profilePicture"),
   async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });
       }
 
-      const { user_id } = req.user; // Get user_id from the authenticated token
-      const profilePicturePath = req.file.path; // Get the path of the uploaded file
+      const { user_id } = req.user;
+      const profilePicturePath = `/uploads/${req.file.filename}`; // Save the relative URL
 
-      // Check if the user already has a profile picture
       const existingProfile = await ProfilePicture.findOne({ user_id });
 
       if (existingProfile) {
-        // Update the existing profile picture
         existingProfile.profilePicture = profilePicturePath;
         await existingProfile.save();
         return res.status(200).json({
@@ -632,7 +630,6 @@ router.post(
         });
       }
 
-      // If no existing profile picture, create a new one
       const newProfile = new ProfilePicture({
         user_id,
         profilePicture: profilePicturePath,
@@ -650,23 +647,19 @@ router.post(
   }
 );
 
-
-
 // Route to retrieve the profile picture
 router.get("/getProfilePicture", authenticateToken, async (req, res) => {
   try {
-    const { user_id } = req.user; // Get the user_id from the authenticated token
+    const { user_id } = req.user;
 
-    // Find the profile picture for the user
     const profile = await ProfilePicture.findOne({ user_id });
 
     if (!profile) {
       return res.status(404).json({ message: "Profile picture not found" });
     }
 
-    // Return the relative URL of the profile picture
-    const profilePictureUrl = `http://16.170.230.178:3000/uploads/${path.basename(profile.profilePicture)}`;
-
+    const baseUrl = process.env.BASE_URL || "http://16.170.230.178:3000"; // Use environment variable for live
+    const profilePictureUrl = `${baseUrl}${profile.profilePicture}`;
 
     return res.status(200).json({
       message: "Profile picture retrieved successfully",
@@ -677,6 +670,5 @@ router.get("/getProfilePicture", authenticateToken, async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 });
-
 
 module.exports = { router, authenticateToken };

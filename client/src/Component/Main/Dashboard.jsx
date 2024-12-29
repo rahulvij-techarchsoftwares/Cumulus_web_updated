@@ -1684,7 +1684,11 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
           {!(folderId === "0" || folderId === 1) ? (
             <div className="flex items-center md:gap-2 mb-1 border-2 border-blue-500 rounded-lg cursor-pointer">
               <div className="h-4 text-blue-500 flex items-center justify-center pl-1">
+<<<<<<< HEAD
                 <img className="h-6" src={shareicon} alt="" />
+=======
+                <img className="h-4" src={shareicon} alt="" />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
               </div>
               <p className="text-md md:text-xl text-blue-500 rounded-md py-2 px-2">Share Folder</p>
             </div>
@@ -1749,7 +1753,11 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                               }}
                             >
                               {/* <Users className="h-4" /> */}
+<<<<<<< HEAD
                               <img src={shareicondesignee} alt="" className="h-6" />
+=======
+                              <img src={shareicondesignee} alt="" className="h-4" />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                               Share
                             </button>
 
@@ -1761,7 +1769,11 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                               }}
                             >
                               {/* <Folder className="h-4" /> */}
+<<<<<<< HEAD
                               <img src={foldericon} alt="" className="h-6" />
+=======
+                              <img src={foldericon} alt="" className="h-4" />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                               Access
                             </button>
 
@@ -1773,7 +1785,11 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                                 setOpenMenuId(null); // Close menu after selecting
                               }}
                             >
+<<<<<<< HEAD
                               <img src={editicon} alt="" className="h-6 " />
+=======
+                              <img src={editicon} alt="" className="h-4 " />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                               {/* <Edit className="h-4" /> */}
                               Edit
                             </button>
@@ -1788,7 +1804,11 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                               }}
                             >
                               {/* <Trash2 className="h-4" /> */}
+<<<<<<< HEAD
                               <img src={trashicon} alt="" className="h-6" />
+=======
+                              <img src={trashicon} alt="" className="h-4" />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                               Delete
                             </button>
                           </>
@@ -1802,7 +1822,11 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                           }}
                         >
                           {/* <Eye className="h-4" /> */}
+<<<<<<< HEAD
                           <img src={eyeicon} alt="" className="h-6" />
+=======
+                          <img src={eyeicon} alt="" className="h-4" />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                           View Content
                         </button>
                         <button
@@ -1813,7 +1837,11 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                           }}
                         >
                           {/* <Download className="h-4 font-extrabold" /> */}
+<<<<<<< HEAD
                           <img src={downloadicon} alt="" className="h-6" />
+=======
+                          <img src={downloadicon} alt="" className="h-4" />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                           Download
                         </button>
                       </motion.div>
@@ -1997,7 +2025,7 @@ Contact:
 
                         {/* Expanded Row */}
                         {isExpanded && (
-                          <tr>
+                          <tr className="z-10">
                             <td colSpan="5" className="p-4 border-l border-r border border-blue-100 bg-blue-100">
                               <div className="flex gap-4 items-center">
                                 {!need && (
@@ -2007,8 +2035,13 @@ Contact:
                                       onClick={() => setShare(true)}
                                     >
                                       {/* <Users className="h-4" /> */}
+<<<<<<< HEAD
                                       <img src={shareicondesignee} alt="" className="h-6" />
                                       <span className="absolute bottom-[-45px] left-2/3  transform -translate-x-1/2 hidden min-w-[110px] group-hover:block bg-white text-black text-xs py-1 px-1 rounded shadow">
+=======
+                                      <img src={shareicondesignee} alt="" className="h-4" />
+                                      <span className="absolute bottom-[-45px] left-2/3  transform -translate-x-1/2 hidden min-w-[110px] group-hover:block bg-white text-black text-xs py-1 px-1 rounded shadow z-20">
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                                         Share with Designee
                                       </span>
                                     </button>
@@ -2017,8 +2050,13 @@ Contact:
                                       onClick={() => setAccess(true)}
                                     >
                                       {/* <Folder className="h-4" /> */}
+<<<<<<< HEAD
                                       <img src={foldericon} alt="" className="h-6" />
                                       <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block min-w-[80px] bg-white text-black text-xs py-1 px-2 rounded shadow">
+=======
+                                      <img src={foldericon} alt="" className="h-4" />
+                                      <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block min-w-[80px] bg-white text-black text-xs py-1 px-2 rounded shadow z-20">
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                                         Full Access
                                       </span>
                                     </button>
@@ -2027,8 +2065,13 @@ Contact:
                                     //onClick={() => setEditingFileId(file._id)} 
                                     >
                                       {/* <Edit className="h-4" /> */}
+<<<<<<< HEAD
                                       <img src={editicon} alt="" className="h-6" />
                                       <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white min-w-[100px] text-black text-xs py-1 px-1 rounded shadow">
+=======
+                                      <img src={editicon} alt="" className="h-4" />
+                                      <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white min-w-[100px] text-black text-xs py-1 px-1 rounded shadow z-20">
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                                         Edit Document
                                       </span>
                                     </button>
@@ -2041,9 +2084,15 @@ Contact:
                                       }}
                                     >
                                       {/* <Trash2 className="h-4 text-red-700" /> */}
+<<<<<<< HEAD
                                       <img src={trashicon} alt="" className="h-6" />
 
                                       <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow">
+=======
+                                      <img src={trashicon} alt="" className="h-4" />
+
+                                      <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow z-20">
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                                         Delete
                                       </span>
                                     </button>
@@ -2057,8 +2106,13 @@ Contact:
                                   onClick={() => fetchFileContent(file._id)}
                                 >
                                   {/* <Eye className="h-4" /> */}
+<<<<<<< HEAD
                                   <img src={eyeicon} alt="" className="h-6" />
                                   <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow">
+=======
+                                  <img src={eyeicon} alt="" className="h-4" />
+                                  <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow z-20">
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                                     View
                                   </span>
                                 </button>
@@ -2067,8 +2121,13 @@ Contact:
                                   onClick={() => handleDownloadFile(file._id)}
                                 >
                                   {/* <Download className="h-4" /> */}
+<<<<<<< HEAD
                                   <img src={downloadicon} alt="" className="h-6" />
                                   <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow">
+=======
+                                  <img src={downloadicon} alt="" className="h-4" />
+                                  <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow z-20">
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                                     Download
                                   </span>
                                 </button>
@@ -2146,7 +2205,11 @@ Contact:
                             >
 
                               {/* <Users className="h-4" /> */}
+<<<<<<< HEAD
                               <img src={shareicondesignee} alt="" className="h-6" />
+=======
+                              <img src={shareicondesignee} alt="" className="h-4" />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
 
                             </button>
 
@@ -2163,7 +2226,11 @@ Contact:
                             >
 
                               {/* <Folder className="h-4" /> */}
+<<<<<<< HEAD
                               <img src={foldericon} alt="" className="h-6" />
+=======
+                              <img src={foldericon} alt="" className="h-4" />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
 
                             </button>
 
@@ -2180,7 +2247,11 @@ Contact:
                             >
 
                               {/* <Edit className="h-4" /> */}
+<<<<<<< HEAD
                               <img src={editicon} alt="" className="h-6" />
+=======
+                              <img src={editicon} alt="" className="h-4" />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                             </button>
 
 
@@ -2196,7 +2267,11 @@ Contact:
                             >
 
                               {/* <Eye className="h-4" /> */}
+<<<<<<< HEAD
                               <img src={eyeicon} alt="" className="h-6 " />
+=======
+                              <img src={eyeicon} alt="" className="h-4 " />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                             </button>
 
 
@@ -2220,7 +2295,11 @@ Contact:
                             >
 
                               {/* <Trash2 className="h-4" /> */}
+<<<<<<< HEAD
                               <img src={trashicon} alt="" className="h-6" />
+=======
+                              <img src={trashicon} alt="" className="h-4" />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
 
                             </button>
 
@@ -2237,7 +2316,11 @@ Contact:
                             >
 
                               {/* <Download className="h-4" /> */}
+<<<<<<< HEAD
                               <img src={downloadicon} alt="" className="h-6" />
+=======
+                              <img src={downloadicon} alt="" className="h-4" />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
 
                             </button>
 
@@ -2326,7 +2409,11 @@ Contact:
                           }}
                         >
                           {/* <Users className="h-4" /> */}
+<<<<<<< HEAD
                           <img src={shareicondesignee} alt="" className="h-6" />
+=======
+                          <img src={shareicondesignee} alt="" className="h-4" />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                           Share
                         </button>
 
@@ -2338,7 +2425,11 @@ Contact:
                           }}
                         >
                           {/* <Folder className="h-4" /> */}
+<<<<<<< HEAD
                           <img src={foldericon} alt="" className="h-6" />
+=======
+                          <img src={foldericon} alt="" className="h-4" />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                           Access
                         </button>
 
@@ -2351,7 +2442,11 @@ Contact:
                           }}
                         >
                           {/* <Edit className="h-4" /> */}
+<<<<<<< HEAD
                           <img src={editicon} alt="" className="h-6 " />
+=======
+                          <img src={editicon} alt="" className="h-4 " />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                           Edit
                         </button>
 
@@ -2365,7 +2460,11 @@ Contact:
                           }}
                         >
                           {/* <Trash2 className="h-4" /> */}
+<<<<<<< HEAD
                           <img src={trashicon} alt="" className="h-6" />
+=======
+                          <img src={trashicon} alt="" className="h-4" />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
 
                           Delete
                         </button>
@@ -2380,7 +2479,11 @@ Contact:
                       }}
                     >
                       {/* <Eye className="h-4" /> */}
+<<<<<<< HEAD
                       <img src={eyeicon} alt="" className="h-6 " />
+=======
+                      <img src={eyeicon} alt="" className="h-4 " />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                       View Content
                     </button>
                     <button
@@ -2391,7 +2494,11 @@ Contact:
                       }}
                     >
                       {/* <Download className="h-4" /> */}
+<<<<<<< HEAD
                       <img src={downloadicon} alt="" className="h-6" />
+=======
+                      <img src={downloadicon} alt="" className="h-4" />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
                       Download
                     </button>
                   </motion.div>
@@ -2609,7 +2716,11 @@ Contact:
                         >
 
                           {/* <Trash2 className="stroke-red-600 h-10" /> */}
+<<<<<<< HEAD
                           <img src={trashicon} alt="" className="h-6" />
+=======
+                          <img src={trashicon} alt="" className="h-4" />
+>>>>>>> 84b6b267898909d07aa2d2ad726a6950f20d7ae5
 
                         </button>
 
@@ -2649,7 +2760,7 @@ Contact:
 
               >
 
-                <Loader2 className="animate-spin h-6 w-6 font-bold" />
+                <Loader2 className="animate-spin h-4 w-6 font-bold" />
 
               </button>) : (<button
 
@@ -3189,7 +3300,7 @@ Contact:
 
               >
 
-                <X className="w-6 h-6 text-gray-700 hover:text-red-500" />
+                <X className="w-6 h-4 text-gray-700 hover:text-red-500" />
 
               </button>
 
@@ -3490,7 +3601,7 @@ Contact:
             <div className="mt-4">
               <div className="flex items-center justify-center mb-4">
                 <div className="w-24 h-24 rounded-full border-dashed border-2 flex items-center justify-center text-gray-500">
-                  <Camera className="h-6 w-6" />
+                  <Camera className="h-4 w-6" />
                 </div>
               </div>
               <label className="block mb-2 text-sm font-medium">

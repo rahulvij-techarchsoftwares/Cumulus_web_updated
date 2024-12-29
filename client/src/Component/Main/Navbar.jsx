@@ -99,9 +99,9 @@ const Navbar = ({ onFolderSelect }) => {
         }
     }
 
-    const toggleDropdown = () => {
-        setIsProfileDropdownOpen(!isProfileDropdownOpen);
-    };
+    // const toggleDropdown = () => {
+    //     setIsProfileDropdownOpen(!isProfileDropdownOpen);
+    // };
 
     return (
         <nav className="flex items-center justify-between px-0 md:px-8 py-3 bg-white shadow-md relative">
@@ -162,7 +162,7 @@ const Navbar = ({ onFolderSelect }) => {
                 <div className="relative">
                     <div
                         className="flex items-center cursor-pointer"
-                        onClick={toggleDropdown}
+                        onClick={gotoprofile}
                     >
                         <img
                             src={profilePicture}
@@ -171,8 +171,8 @@ const Navbar = ({ onFolderSelect }) => {
                         />
                         <p className="text-black mt-1 ml-1 hidden md:block">{username}</p>
                     </div>
-                    {isProfileDropdownOpen && (
-                        <motion.div
+                    {/* {isProfileDropdownOpen && ( */}
+                        {/* <motion.div
                             className="absolute right-0 mt-2  border border-gray-200 rounded-md py-2 bg-blue-500 text-white shadow-lg w-28 z-10"
                             initial="hidden"
                             animate="visible"
@@ -183,18 +183,18 @@ const Navbar = ({ onFolderSelect }) => {
                                 onClick={logout}
                                 className="flex items-center justify-between  hover:text-red-600  cursor-pointer font-medium rounded-md px-4 py-2 w-full transition duration-300"
                             >
-                                {/* <LogOut className="w-5 h-5 mr-2" /> */}
+                                
                                 <span>Sign Out</span>
                             </button>
                             <button
                                 onClick={gotoprofile}
                                 className="flex items-center justify-between  hover:text-red-600  cursor-pointer font-medium rounded-md px-4 py-2 w-full transition duration-300"
                             >
-                                {/* <LogOut className="w-5 h-5 mr-2" /> */}
+                                
                                 <span>My Profile</span>
                             </button>
-                        </motion.div>
-                    )}
+                        </motion.div> */}
+                    {/* // )} */}
                 </div>
             </div>
         </nav>

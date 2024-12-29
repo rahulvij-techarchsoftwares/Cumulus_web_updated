@@ -206,7 +206,7 @@ const Sidebar = ({ onFolderSelect }) => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
+       
       if (response.status === 200) {
         setOpenMenuId(false);
         fetchFolders();
@@ -319,6 +319,8 @@ const Sidebar = ({ onFolderSelect }) => {
       onFolderSelect(1); // Trigger the function to fetch files for folder 1
     }
   }, [location, onFolderSelect]);
+
+  
   return (
     <div className="hidden md:flex flex-col  min-h-screen w-64 bg-gray-100 p-3 space-y-0  overflow-hidden">
       <div style={{ width: "25vw" }} className="mb-2 ">
@@ -456,8 +458,8 @@ const Sidebar = ({ onFolderSelect }) => {
                       className="text-red-500 ml-2"
                       onClick={(e) => {
                         e.preventDefault();
-                        setEditingFolderId(null);
-                        setEditFolderName("");
+                        setEditingFolderId(null); // Cancel editing
+                        setEditFolderName(""); // Reset folder name
                       }}
                     >
                       <X />
@@ -465,7 +467,7 @@ const Sidebar = ({ onFolderSelect }) => {
                   </>
                 ) : (
                   <>
-                    <span className="flex gap-2 items-center truncate-text ">
+                    <span className="flex gap-2 items-center truncate-text">
                       <img
                         src={FolderNotch}
                         alt="Folder"
@@ -484,7 +486,7 @@ const Sidebar = ({ onFolderSelect }) => {
                   </>
                 )}
 
-               
+                {/* Menu Options */}
                 {openMenuId === folder.id && !editingFolderId && (
                   <div className="absolute top-full right-0 mt-2 w-32 bg-white shadow-lg rounded-lg text-black z-20">
                     <button
