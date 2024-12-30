@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import PropTypes from "prop-types";
 import { Search, Bell, ZapIcon, LogOut } from "lucide-react";
@@ -10,16 +10,18 @@ import { motion } from "framer-motion";
 import profile from "../../assets/profile.jpg";
 import MobileSidebar from "../../Component/Main/MobileSidebar";
 import fetchUserData from "./fetchUserData";
-
-const Navbar = ({ onFolderSelect }) => {
+import { UserContext } from '../utils/UserContext';
+import { ProfileContext } from '../utils/ProfileContext';
+const Navbar = ({ onFolderSelect,setSearchQuery }) => {
     const [showSearch, setShowSearch] = useState(false);
     const [userData, setUserData] = useState(null);
     const [error, setError] = useState(null);
     const [isMembershipActive, setIsMembershipActive] = useState(false);
-    const [username, setUsername] = useState("");
+    // const [username, setUsername] = useState("");
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-    
-    const [profilePicture, setProfilePicture] = useState("default-avatar.png");
+
+    const { username } = useContext(UserContext); 
+    const { profilePicture } = useContext(ProfileContext); 
 
     const navigate = useNavigate();
 
@@ -31,44 +33,40 @@ const Navbar = ({ onFolderSelect }) => {
         visible: { opacity: 1, y: 0 },
         exit: { opacity: 0, y: -10 },
     };
-    useEffect(() => {
-        const getUserData = async () => {
-            try {
-                const data = await fetchUserData();
-                if (!data?.user) {
-                    throw new Error("Invalid response structure");
-                }
+    // const getUserData = async () => {
+    //     try {
+    //         const data = await fetchUserData();
+    //         if (!data?.user) {
+    //             throw new Error("Invalid response structure");
+    //         }
 
-                setUserData(data);
-                setIsMembershipActive(data.user.activeMembership);
-                setUsername(data.user.username);
-            } catch (err) {
-                setError(err.message || "Failed to fetch user data");
-            }
-        };
-        getUserData();
-    }, []);
+    //         setUserData(data);
+    //         setIsMembershipActive(data.user.activeMembership);
+    //         // setUsername(data.user.username);
+    //     } catch (err) {
+    //         setError(err.message || "Failed to fetch user data");
+    //     }
+    // };
 
-    useEffect(() => {
-        const fetchProfilePicture = async () => {
-          try {
-            const token = localStorage.getItem("token");
-            const response = await axios.get(`${API_URL}/api/auth/getProfilePicture`, {
-              headers: {
-                Authorization: `Bearer ${token}`, // Add token if needed
-              },
-            });
-            if (response.status === 200) {
-              setProfilePicture(response.data.profilePictureUrl);
-            }
-          } catch (error) {
-            console.error("Error fetching profile picture:", error);
-            // Use default avatar if fetching fails
-            setProfilePicture("default-avatar.png");
-          }
-        };
-        fetchProfilePicture();
-      }, []);
+// Fetch the profile picture when the component mounts
+// const fetchProfilePicture = async () => {
+//     try {
+//       const response = await axios.get(`${API_URL}/api/auth/get-profile-picture`, {
+//         headers: {
+//           Authorization: `Bearer ${localStorage.getItem("token")}`, // Assuming you store the token in localStorage
+//         },
+//       });
+//     //   setProfilePicture(response.data.profilePicture); // Set the profile picture URL in state
+//     } catch (error) {
+//       console.error("Error fetching profile picture:", error);
+//     }
+//   };
+
+    // useEffect(() => {
+        
+    //     // getUserData();
+    //     fetchProfilePicture();
+    //   }, []); 
 
     async function logout() {
         try {
@@ -115,6 +113,7 @@ const Navbar = ({ onFolderSelect }) => {
                         type="text"
                         placeholder="Search"
                         className="flex-grow px-3 py-2 rounded-md focus:outline-none"
+                        onChange={(e) => setSearchQuery(e.target.value)} 
                     />
                 </div>
 
@@ -165,11 +164,13 @@ const Navbar = ({ onFolderSelect }) => {
                         onClick={gotoprofile}
                     >
                         <img
-                            src={profilePicture}
+                            src={profilePicture || 'default-profile-pic.png'}
                             alt="User"
                             className="h-8 w-8 rounded-full object-cover"
                         />
-                        <p className="text-black mt-1 ml-1 hidden md:block">{username}</p>
+                        <p className="text-black mt-1 ml-1 hidden md:block">
+          {username ? username : 'Guest'}
+        </p>
                     </div>
                     {/* {isProfileDropdownOpen && ( */}
                         {/* <motion.div

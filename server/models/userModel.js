@@ -147,7 +147,11 @@ const ProfilePictureSchema = new mongoose.Schema(
       required: true,
     },
     profilePicture: {
-      type: String, // Path to the uploaded profile picture
+      type: String, // Encrypted path to the uploaded profile picture
+      required: true,
+    },
+    iv: {
+      type: String, // Initialization vector for decryption
       required: true,
     },
   },

@@ -21,7 +21,7 @@ app.use(express.json());
 
 app.use(cookieParser());
 app.use(cors({
-  origin: 'http://16.170.230.178:3001', 
+  origin: 'http://localhost:3001', 
   credentials: true, 
 }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -56,4 +56,4 @@ mongoose
     process.exit(1);
   });
 
-  app.listen(PORT, '0.0.0.0', () => console.log(`Server running on http://16.170.230.178:${PORT}`));
+  app.listen(PORT, '0.0.0.0', () => console.log(`Server running on http://localhost:${PORT}`));

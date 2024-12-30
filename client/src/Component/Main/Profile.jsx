@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Cookies from "js-cookie";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -6,6 +6,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import editicon from "../../assets/edit-icon.png";
 import profileicon from "../../assets/profile-icon.png";
 // import profileavatar from "../../assets/profile-avatar.png";
+import { ProfileContext } from '../utils/ProfileContext';
 import avatar from "../../assets/avatar.png";
 import key from "../../assets/key.png";
 import file from "../../assets/file.png";
@@ -22,7 +23,7 @@ const Profile = () => {
     phone: "",
   });
   const [isEditing, setIsEditing] = useState(false);
-  const [profilePicture, setProfilePicture] = useState("default-avatar.png");
+  const { profilePicture, setProfilePicture } = useContext(ProfileContext);
   const navigate = useNavigate();
   // Fetch user details on component mount
 
@@ -78,27 +79,29 @@ const Profile = () => {
         console.error("Error fetching user details:", error);
       }
     };
-    const fetchProfilePicture = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(`${API_URL}/api/auth/getProfilePicture`, {
-          headers: {
-            Authorization: `Bearer ${token}`, // Add token if needed
-          },
-        });
-        if (response.status === 200) {
-          setProfilePicture(response.data.profilePictureUrl);
-        }
-      } catch (error) {
-        console.error("Error fetching profile picture:", error);
-        // Use default avatar if fetching fails
-        setProfilePicture("default-avatar.png");
-      }
-    };
+    
+// Fetch the profile picture when the component mounts
+const fetchProfilePicture = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/api/auth/get-profile-picture`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`, // Assuming you store the token in localStorage
+      },
+    });
+    setProfilePicture(response.data.profilePicture); // Set the profile picture URL in state
+  } catch (error) {
+    console.error("Error fetching profile picture:", error);
+  }
+};
+
+    useEffect(() => {
+  
+      fetchProfilePicture();
+    }, []);
 
 
   useEffect(() => {
-    fetchProfilePicture();
+    
     fetchUserDetails();
   }, []);
 
@@ -153,14 +156,14 @@ const Profile = () => {
       // Prepare form data
       const formData = new FormData();
       formData.append("profilePicture", file);
-      console.log("API URL:", `${API_URL}/api/auth/uploadProfilePicture`);
+      console.log("API URL:", `${API_URL}/api/auth/upload-profile-picture`);
 
 
       try {
         // Send the image to the backend
         const token = localStorage.getItem("token");
         const response = await axios.post(
-          `${API_URL}/api/auth/uploadProfilePicture`,
+          `${API_URL}/api/auth/upload-profile-picture`,
           formData,
           {
             headers: {
@@ -174,6 +177,7 @@ const Profile = () => {
           alert("Profile picture updated successfully!");
           fetchProfilePicture();
         }
+        // setProfilePicture(response.data.profilePicture); // Update the state in Navbar
       } catch (error) {
         console.error("Error uploading profile picture:", error);
         alert("Failed to upload profile picture. Please try again.");
@@ -232,11 +236,16 @@ const Profile = () => {
             <span className="border border-[#DCDFE4] rounded-full p-2">
               <div className="relative w-16 h-16 group">
                 <div className="w-full h-full rounded-full overflow-hidden">
-                  <img
-                    src={profilePicture}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
+                  {/* Display the profile picture if available */}
+        {profilePicture ? (
+          <img
+            src={profilePicture}
+            alt="Profile"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-300 flex items-center justify-center text-white">No Image</div> // Fallback if no image
+        )}
                 </div>
                 <div
                   className="absolute cursor-pointer inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"

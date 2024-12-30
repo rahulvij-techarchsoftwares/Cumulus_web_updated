@@ -44,7 +44,7 @@ import { useParams, NavLink } from "react-router-dom";
 
 import useLoadingStore from "../../store/UseLoadingStore";
 
-const Dashboard = ({ folderId = 1, onFolderSelect }) => {
+const Dashboard = ({ folderId = 1, onFolderSelect,searchQuery }) => {
   const { id: routeFolderId } = useParams();
 
   const { isLoading, showLoading, hideLoading } = useLoadingStore();
@@ -150,7 +150,7 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
   const [editingFileId, setEditingFileId] = useState(null); // ID of the file being edited
 
   const [tempFileName, setTempFileName] = useState("");
-
+const [MobilesearchQuery, MobilesetsearchQuery] = useState("");
   // const [users, setUsers] = useState([
 
   //   {
@@ -194,24 +194,25 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
   const [membershipDetail, setMembershipDetail] = useState(null);
   const [userData, setUserData] = useState(null);
   const [deletebutton1, setDeletebutton1] = useState(false);
-  const [filteredFiles, setFilteredFiles] = useState();
+  // const [filteredFiles, setFilteredFiles] = useState();
   const [username, setUsername] = useState("");
+
   // Start editing a file name
   const handleEditFileName = (file) => {
     setEditFileId(file.id);
     setTempFName(file.name);
   };
 
-  const handleSaveFileName = (fileId) => {
-    // Save the new name logic here
-    const updatedFiles = filteredFiles.map((file) =>
-      file.id === fileId ? { ...file, name: tempFileName } : file
-    );
-    setFilteredFiles(updatedFiles);
-    // Update your state with the updated files
-    console.log("Updated files:", updatedFiles); // Replace with your state update logic
-    setEditingFileId(null); // Exit editing mode
-  };
+  // const handleSaveFileName = (fileId) => {
+  //   // Save the new name logic here
+  //   const updatedFiles = filteredFiles.map((file) =>
+  //     file.id === fileId ? { ...file, name: tempFileName } : file
+  //   );
+  //   setFilteredFiles(updatedFiles);
+  //   // Update your state with the updated files
+  //   console.log("Updated files:", updatedFiles); // Replace with your state update logic
+  //   setEditingFileId(null); // Exit editing mode
+  // };
 
   useEffect(() => {
     console.log("Current editing file ID:", editFileId);
@@ -792,6 +793,11 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
   // };
 
   const handleEditFile = (file) => {
+    if (!file || typeof file.name !== 'string') {
+      console.error("Invalid file object:", file);
+      return;
+    }
+
     const fileExtension = file.name.split(".").pop(); // Extract the extension
 
     setEditFile({
@@ -799,13 +805,14 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
 
       name: file.name.replace(`.${fileExtension}`, ""), // Remove the extension from the name
 
-      description: file.description,
+      description: file.description || "", // Provide a fallback for description
 
-      tag: file.tag || "",
+      tag: file.tag || "", // Provide a fallback for tag
 
       extension: fileExtension, // Store the extension
     });
   };
+
 
   const toggleEllipses = (fileId) => {
     // Toggle the menu for the specific file by comparing the IDs
@@ -1177,6 +1184,12 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
     </div>
   );
 
+  const filteredFiles = files.filter((file) =>
+    file.file_name?.toLowerCase().includes(searchQuery)
+  );
+  const filteredMobileFiles = files.filter((file) =>
+    file.file_name?.toLowerCase().includes(MobilesearchQuery)
+  );
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -1197,27 +1210,16 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
     <div className=" px-4  bg-white">
       {/* Dashboard Header */}
 
-      <div className="w-full mt-2 flex items-center border border-gray-300 rounded-lg p-2 md:hidden">
-        <Search className="text-gray-500 mr-2" />
-        <input
-          type="text"
-          placeholder="Search"
-          className="w-full p-1 bg-transparent outline-none text-black"
-          onChange={
-            <div className="w-full flex items-center border border-gray-300 rounded-lg p-2 sm:hidden">
-              <Search className="text-gray-500 mr-2" />
-              <input
-                type="text"
-                placeholder="Search"
-                className="w-full p-1 bg-transparent outline-none text-black"
-              // onChange={handlemobileSearchChange}
-              // value={mobilesearchQuery}
-              />
-            </div>
-          }
-        // value={mobilesearchQuery}
-        />
-      </div>
+    <div className="w-full mt-2 flex items-center border border-gray-300 rounded-lg p-2 md:hidden">
+            <Search className="text-gray-500 mr-2" />
+            <input
+              type="text"
+              placeholder="Search"
+              className="w-full p-1 bg-transparent outline-none text-black"
+              onChange={(e) => MobilesetsearchQuery(e.target.value)}
+    
+            />
+          </div>
 
       {folderId !== 1 && (
         <div className="flex flex-col">
@@ -1310,11 +1312,39 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
       {viewMode === "list" ? (
         <>
           <div className="grid grid-cols-1 gap-4 md:hidden p-1 max-h-[50vh] overflow-y-scroll ">
-            {Array.isArray(files) &&
-              files.map((file) => (
+            {Array.isArray(filteredMobileFiles) &&
+              filteredMobileFiles.map((file) => (
                 <div key={file._id} className="border p-2 rounded  ">
                   <div className="flex justify-between relative">
-                    <h3 className="text-lg font-medium">{file.file_name}</h3>
+                    {/* <h3 className="text-lg font-medium">{file.file_name}</h3> */}
+                    {String(editFileId) === String(file._id) ? (
+                      <div className="flex items-center gap-2 border-b-2 border-blue-500 pt-2">
+                        <input
+                          type="text"
+                          value={tempFName}
+                          onChange={(e) => {
+                            setTempFName(e.target.value);
+                            console.log(
+                              "Temp File Name:",
+                              e.target.value
+                            );
+                          }}
+                          onBlur={() => handleSaveFName(file._id)} // Save the new file name when input loses focus
+                          className="rounded p-1 bg-transparent outline-none"
+                          autoFocus
+                        />
+                        <button
+                          className="text-blue-500 hover:text-blue-700 px-3 py-1 bg-gray-100 rounded-md bg-transparent"
+                          onClick={() => handleSaveFName(file._id)} // Save on button click
+                        >
+                          {/* <Check className="h-5" /> */}Save
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-medium">{file.file_name}</h3>
+                      </div>
+                    )}
 
                     {/* Ellipsis Button */}
                     <button
@@ -1371,10 +1401,18 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                               className="flex items-center gap-2 text-gray-600 hover:text-blue-500"
                               onClick={() => {
                                 handleEditFile(file);
-                                setOpenMenuId(null); // Close menu after selecting
+                                setOpenMenuId(null);
+                                setEditFileId(file._id);
+                                setTempFName(file.file_name); // Close menu after selecting
                               }}
                             >
-                              <img src={editicon} alt="" className="h-4 " />
+                              <img src={editicon} alt="" className="h-4 "
+                                onClick={() => {
+                                  setEditFileId(file._id);
+                                  setTempFName(file.file_name);
+
+                                }}
+                              />
                               {/* <Edit className="h-4" /> */}
                               Edit
                             </button>
@@ -1463,7 +1501,7 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
               ))}
           </div>
 
-          <div className="mt-2 bg-white rounded md:flex max-h-[70vh] pb-[20px] overflow-y-scroll scrollbar-thin">
+          <div className="mt-2 bg-white rounded hidden md:flex max-h-[70vh] pb-[20px] overflow-y-scroll scrollbar-thin">
             <table className="w-full">
               <thead>
                 <tr className="bg-gray-100 text-left text-[0.8rem]  border-black">
@@ -1486,10 +1524,10 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
               </thead>
 
               <tbody className="">
-                {Array.isArray(files) ? (
+                {Array.isArray(filteredFiles) ? (
                   // If files is an array, use map
 
-                  files.map((file) => {
+                  filteredFiles.map((file) => {
                     console.log("File Object:", file); // Debugging file object
 
                     const isExpanded = expandedRow === file._id; // Check if the current row is expanded
@@ -1511,6 +1549,7 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                                   } h-5 transition-transform`}
                               />
                             </button>
+
                             {String(editFileId) === String(file._id) ? (
                               <div className="flex items-center gap-2 border-b-2 border-blue-500 pt-2">
                                 <input
@@ -1535,7 +1574,7 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                                 </button>
                               </div>
                             ) : (
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center font-normal text-lg gap-2">
                                 {file.file_name}
                               </div>
                             )}
@@ -1543,7 +1582,7 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
 
                           <td className="p-0 md:p-4">
                             <div
-                              className={`bg-[#EEEEEF] rounded-xl px-3 py-1 text-[1rem] inline-block transition-all duration-300 ${isExpanded ? "bg-white" : "bg-[#EEEEEF]"
+                              className={`bg-[#EEEEEF] rounded-lg px-3 py-1 text-[1rem] inline-block transition-all duration-300 ${isExpanded ? "bg-white" : "bg-[#EEEEEF]"
                                 }`}
                             >
                               {folderId === 1
@@ -1598,6 +1637,7 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                                         className="h-4"
                                       />
                                       <span className="absolute bottom-[-45px] left-2/3  transform -translate-x-1/2 hidden min-w-[110px] group-hover:block bg-white text-black text-xs py-1 px-1 rounded shadow z-20">
+
                                         Share with Designee
                                       </span>
                                     </button>
@@ -1612,6 +1652,7 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                                         className="h-4"
                                       />
                                       <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block min-w-[80px] bg-white text-black text-xs py-1 px-2 rounded shadow z-20">
+
                                         Full Access
                                       </span>
                                     </button>
@@ -1633,9 +1674,11 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                                         className="h-4"
                                       />
                                       <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white min-w-[100px] text-black text-xs py-1 px-1 rounded shadow z-20">
+
                                         Edit Document
                                       </span>
                                     </button>
+
                                     <button
                                       className="relative group flex items-center gap-2 text-gray-600 hover:text-red-500"
                                       onClick={() => {
@@ -1655,6 +1698,7 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                                       />
 
                                       <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow z-20">
+
                                         Delete
                                       </span>
                                     </button>
@@ -1682,6 +1726,7 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                                     className="h-4"
                                   />
                                   <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow z-20">
+
                                     Download
                                   </span>
                                 </button>
@@ -1750,6 +1795,9 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                               onClick={() => setAccess(true)}
                             >
                               {/* <Folder className="h-4" /> */}
+
+                              <img src={foldericon} alt="" className="h-6" />
+
                               <img src={foldericon} alt="" className="h-4" />
                             </button>
 
@@ -1789,6 +1837,9 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                               }}
                             >
                               {/* <Trash2 className="h-4" /> */}
+
+                              <img src={trashicon} alt="" className="h-6" />
+
                               <img src={trashicon} alt="" className="h-4" />
                             </button>
 
@@ -1799,6 +1850,9 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                               onClick={() => handleDownloadFile(files._id)}
                             >
                               {/* <Download className="h-4" /> */}
+
+                              <img src={downloadicon} alt="" className="h-6" />
+
                               <img src={downloadicon} alt="" className="h-4" />
                             </button>
                           </div>
@@ -1811,27 +1865,54 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
             </table>
           </div>
         </>
+
       ) : (
         <div className="grid grid-cols-2 gap-2 md:hidden p-2  max-h-[50vh] overflow-y-scroll">
-          {Array.isArray(files) &&
-            files.map((file) => (
+          {Array.isArray(filteredMobileFiles) &&
+            filteredMobileFiles.map((file) => (
               <div key={file._id} className="bg-white p-4 rounded border ">
                 <div className="flex justify-between relative">
                   <span
-                    className="overflow-hidden"
-                    style={{ maxWidth: "20vw" }} // Adjust the width as needed
+                    className="block overflow-hidden"
+                    style={{
+                      maxWidth: "25vw", // Constrain the width
+                    }}
                   >
-                    <p
-                      className="text-lg text-gray-600 truncate"
-                      style={{
-                        whiteSpace: "nowrap",
-                        // overflow: 'hidden',
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      <h3 className="text-lg font-medium">{file.file_name}</h3>
-                    </p>
+                    {String(editFileId) === String(file._id) ? (
+                      <div className="flex items-center gap-2 border-b-2 border-blue-500 pt-2">
+                        <input
+                          type="text"
+                          value={tempFName}
+                          onChange={(e) => {
+                            setTempFName(e.target.value);
+                            console.log("Temp File Name:", e.target.value);
+                          }}
+                          onBlur={() => handleSaveFName(file._id)} // Save the new file name when input loses focus
+                          className="rounded p-1 bg-transparent outline-none"
+                          autoFocus
+                        />
+                        <button
+                          className="text-blue-500 hover:text-blue-700 px-3 py-1 bg-gray-100 rounded-md"
+                          onClick={() => handleSaveFName(file._id)} // Save on button click
+                        >
+                          Save
+                        </button>
+                      </div>
+                    ) : (
+                      <p
+                        className="text-lg font-bold  text-gray-600 truncate"
+                        style={{
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          maxWidth: "100%", 
+                        }}
+                      >
+                        {file.file_name.trim()}
+                      </p>
+                    )}
                   </span>
+
 
                   {/* Ellipsis Button */}
                   <button
@@ -1888,7 +1969,9 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                             className="flex items-center gap-2 text-gray-600 hover:text-blue-500"
                             onClick={() => {
                               handleEditFile(file);
-                              setOpenMenuId(null); // Close menu after selecting
+                              setOpenMenuId(null);
+                              setEditFileId(file._id);
+                              setTempFName(file.file_name); // Close menu after selecting
                             }}
                           >
                             {/* <Edit className="h-4" /> */}
@@ -2075,6 +2158,9 @@ const Dashboard = ({ folderId = 1, onFolderSelect }) => {
                           onClick={() => handleDeleteFile(file.name)}
                         >
                           {/* <Trash2 className="stroke-red-600 h-10" /> */}
+
+                          <img src={trashicon} alt="" className="h-6" />
+
                           <img src={trashicon} alt="" className="h-4" />
                         </button>
                       </>

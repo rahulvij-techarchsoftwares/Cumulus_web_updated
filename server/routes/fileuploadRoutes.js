@@ -424,39 +424,32 @@ router.post("/edit-folder-name", authenticateToken, async (req, res) => {
 // API to get the total size of a user's folder in S3
 router.get('/get-folder-size', authenticateToken, async (req, res) => {
   const userId = req.user.user_id;
-  const folderName = `${userId}/`;  // Construct the folder path using userId
+  const folderName = `${userId}/`; 
   let totalSize = 0;
   let isTruncated = true;
   let continuationToken = null;
 
   try {
-    // Loop to handle pagination if there are more than 1000 objects
+
     while (isTruncated) {
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
-        Prefix: folderName, // List objects under this folder
-        ContinuationToken: continuationToken, // Pagination token if more results exist
+        Prefix: folderName, 
+        ContinuationToken: continuationToken, 
       };
 
-      // Send request to AWS S3 to list objects in the folder
       const command = new ListObjectsV2Command(params);
       const data = await s3.send(command);
-
-      // console.log(data.Contents); // Print out the objects to verify
-
-
-      // Accumulate the total size of the files
       data.Contents.forEach((object) => {
         totalSize += object.Size;
       });
 
-      // Check if there are more objects to fetch (pagination)
+
       isTruncated = data.IsTruncated;
       continuationToken = data.NextContinuationToken;
       
     }
     const totalSizeKB = totalSize / 1024;
-    // Return the total size in bytes
     res.json({ totalSizeKB });
   } catch (error) {
     console.error('Error fetching folder size:', error);

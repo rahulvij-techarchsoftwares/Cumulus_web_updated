@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { Role, SecurityQuestion, Userlogin, UserQuestion, ProfilePicture } = require("../models/userModel");
+const { S3Client, PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
@@ -9,6 +10,9 @@ const crypto = require('crypto');
 const { generateOTP, sendEmail } = require('../email/emailUtils')
 const router = express.Router();
 const otpStore = new Map();
+const s3 = require("../config/s3Client");
+
+const { encryptField, decryptField } = require("../utilities/encryptionUtils");
 
 const JWT_SECRET = crypto.randomBytes(64).toString('hex');
 const REFRESH_TOKEN_SECRET = crypto.randomBytes(64).toString('hex');
@@ -605,70 +609,120 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Route for uploading or updating profile picture
 router.post(
-  "/uploadProfilePicture",
+  "/upload-profile-picture",
   authenticateToken,
-  upload.single("profilePicture"),
+  upload.single("profilePicture"), // This should handle the file upload
   async (req, res) => {
+    const file = req.file;
+    console.log("File object received:", file); // Debugging log
+
+    const user_id = req.user ? req.user.user_id : null;
+
+    if (!user_id) {
+      return res.status(401).json({ error: "User ID not found in token" });
+    }
+
+    if (!file) {
+      return res.status(400).json({ error: "Profile picture file is required" });
+    }
+
     try {
-      if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
+      // Check if file and path exist
+      if (file && file.path) {
+        console.log(`File size: ${file.size} bytes`);
+        console.log(`File MIME type: ${file.mimetype}`);
+      } else {
+        return res.status(400).json({ error: "File path is missing or invalid" });
       }
 
-      const { user_id } = req.user;
-      const profilePicturePath = `/uploads/${req.file.filename}`; // Save the relative URL
+      // Find the existing profile picture document for the user
+      const existingProfilePicture = await ProfilePicture.findOne({ user_id });
 
-      const existingProfile = await ProfilePicture.findOne({ user_id });
+      // If an existing profile picture exists, delete it from S3
+      if (existingProfilePicture) {
+        const oldFileName = decryptField(existingProfilePicture.profilePicture, existingProfilePicture.iv).split('/').pop();
+        const oldAwsFileKey = `${user_id}/profilepicture/${oldFileName}`;
 
-      if (existingProfile) {
-        existingProfile.profilePicture = profilePicturePath;
-        await existingProfile.save();
-        return res.status(200).json({
-          message: "Profile picture updated successfully",
-          profilePicture: profilePicturePath,
-        });
+        // Delete the old file from AWS S3
+        const deleteParams = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: oldAwsFileKey,
+        };
+        await s3.send(new DeleteObjectCommand(deleteParams));
       }
 
-      const newProfile = new ProfilePicture({
-        user_id,
-        profilePicture: profilePicturePath,
-      });
-      await newProfile.save();
+      // Sanitize the file name (replace any special characters to avoid issues with S3)
+      const fileName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, "_");
+      const aws_file_key = `${user_id}/profilepicture/${fileName}`;
+      const aws_file_link = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${aws_file_key}`;
 
-      return res.status(200).json({
-        message: "Profile picture uploaded successfully",
-        profilePicture: profilePicturePath,
+      const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: aws_file_key,
+        Body: fs.createReadStream(file.path), // Use the local file path to upload to S3
+        ContentType: file.mimetype,  // Ensure the correct MIME type is used
+        ServerSideEncryption: "AES256",
+        ACL: "public-read",
+      };
+
+      // Upload the new file to S3
+      const command = new PutObjectCommand(params);
+      await s3.send(command);
+
+      // Encrypt the AWS file link
+      const encryptedFileLink = encryptField(aws_file_link);
+
+      // Update or create the profile picture entry in MongoDB
+      const profilePicture = await ProfilePicture.findOneAndUpdate(
+        { user_id },
+        {
+          profilePicture: encryptedFileLink.encryptedData,
+          iv: encryptedFileLink.iv,
+        },
+        { upsert: true, new: true }
+      );
+
+      res.status(201).json({
+        message: "Profile picture updated successfully",
+        profilePicture: {
+          user_id,
+          file_name: fileName,
+          aws_file_link,
+        },
       });
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ message: "Server error" });
+      res.status(500).json({ error: "Error uploading profile picture" });
     }
   }
 );
+router.get("/get-profile-picture", authenticateToken, async (req, res) => {
+  const user_id = req.user ? req.user.user_id : null;
 
-// Route to retrieve the profile picture
-router.get("/getProfilePicture", authenticateToken, async (req, res) => {
+  if (!user_id) {
+    return res.status(401).json({ error: "User ID not found in token" });
+  }
+
   try {
-    const { user_id } = req.user;
+    // Find the profile picture document for the user
+    const profilePictureDoc = await ProfilePicture.findOne({ user_id });
 
-    const profile = await ProfilePicture.findOne({ user_id });
-
-    if (!profile) {
-      return res.status(404).json({ message: "Profile picture not found" });
+    if (!profilePictureDoc) {
+      return res.status(404).json({ error: "Profile picture not found" });
     }
 
-    const baseUrl = process.env.BASE_URL || "http://16.170.230.178:3000"; // Use environment variable for live
-    const profilePictureUrl = `${baseUrl}${profile.profilePicture}`;
-
-    return res.status(200).json({
+    // Decrypt the profile picture link
+    const decryptedLink = decryptField(profilePictureDoc.profilePicture, profilePictureDoc.iv);
+    
+    // Send the decrypted AWS S3 URL as the response
+    res.status(200).json({
       message: "Profile picture retrieved successfully",
-      profilePictureUrl,
+      profilePicture: decryptedLink, // The decrypted AWS S3 URL
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Server error" });
+    res.status(500).json({ error: "Error retrieving profile picture" });
   }
 });
-
 module.exports = { router, authenticateToken };
