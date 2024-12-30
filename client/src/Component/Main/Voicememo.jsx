@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from "framer-motion";
-import { ArrowRight, Menu, LayoutGrid, X, ChevronDown, Users, Edit, Eye, Trash2, EllipsisVertical, Download } from 'lucide-react';
+import { ArrowRight, Menu, LayoutGrid, X, ChevronDown, Users, Edit, Eye, Trash2, EllipsisVertical, Download, Search } from 'lucide-react';
 import Cookies from 'js-cookie';
 import fetchUserData from './fetchUserData';
 import play from "../../assets/Play.png"
@@ -8,10 +8,16 @@ import { NavLink } from "react-router-dom";
 // import VoiceLogo from '../../assets/VoiceLogo.png';
 // import voicepage from '../../assets/voicepage.png';
 import mainmic from "../../assets/mainmic.png"
+import editicon from "../../assets/editicon.png";
+import shareicondesignee from "../../assets/shareicondesignee.png";
+import foldericon from "../../assets/foldericon.png";
+import eyeicon from "../../assets/eyeicon.png";
+import trashicon from "../../assets/trashicon.png";
+import downloadicon from "../../assets/downloadicon.png";
 
 import { API_URL } from '../utils/Apiconfig';
 import axios from 'axios'; // For API integration
-const Voicememo = () => {
+const Voicememo = ({ searchQuery }) => {
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
   const [username, setUsername] = useState("");
   // const [isRecording, setIsRecording] = useState(false);
@@ -55,52 +61,53 @@ const Voicememo = () => {
   const [deletebutton1, setDeletebutton1] = useState(false);
   const [selectedFileId, setSelectedFileId] = useState(null);
   const [users, setUsers] = useState([]);
+  const [MobilesearchQuery, MobilesetSearchQuery] = useState("");
 
 
 
-  const [editsMode, setEditsMode] = useState(null); 
-const [newVoicesName, setNewVoicesName] = useState(""); 
+  const [editsMode, setEditsMode] = useState(null);
+  const [newVoicesName, setNewVoicesName] = useState("");
 
-const handleEdits= (id, currentName) => { 
-  setEditsMode(id);
-  setNewVoicesName(currentName);
-};
+  const handleEdits = (id, currentName) => {
+    setEditsMode(id);
+    setNewVoicesName(currentName);
+  };
 
 
-const handleSaveEdits = async (id) => {
-  try {
-    // const token = Cookies.get('token');
-    const token = localStorage.getItem("token");
+  const handleSaveEdits = async (id) => {
+    try {
+      // const token = Cookies.get('token');
+      const token = localStorage.getItem("token");
 
-    if (!token) {
-      console.log("No token found. Please log in.");
-      return;
+      if (!token) {
+        console.log("No token found. Please log in.");
+        return;
+      }
+      const response = await fetch(`${API_URL}/api/voice-memo/edit-voice-name`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          voice_id: id,
+          new_voice_name: newVoicesName,
+        }),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        // alert("Voice name updated successfully");
+        setEditsMode(null);
+        // Optionally, refresh the list of files
+      } else {
+        alert(result.error || "Failed to update voice name");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error updating voice name");
     }
-    const response = await fetch(`${API_URL}/api/voice-memo/edit-voice-name`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        voice_id: id,
-        new_voice_name: newVoicesName,
-      }),
-    });
-
-    const result = await response.json();
-    if (response.ok) {
-      // alert("Voice name updated successfully");
-      setEditsMode(null);
-      // Optionally, refresh the list of files
-    } else {
-      alert(result.error || "Failed to update voice name");
-    }
-  } catch (error) {
-    console.error(error);
-    alert("Error updating voice name");
-  }
-};
+  };
 
 
 
@@ -297,7 +304,7 @@ const handleSaveEdits = async (id) => {
         console.error("File not found");
         return;
       }
-  
+
       // Make the API request to get the signed URL for download
       const response = await fetch(`${API_URL}/api/voice-memo/download-voice`, {
         method: "POST",
@@ -307,14 +314,14 @@ const handleSaveEdits = async (id) => {
         },
         body: JSON.stringify({ voice_id: file._id }),
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to get download URL");
       }
-  
+
       const data = await response.json();
       const { downloadUrl } = data;
-  
+
       if (downloadUrl) {
         // Trigger the download by creating a link and simulating a click
         const link = document.createElement("a");
@@ -328,11 +335,11 @@ const handleSaveEdits = async (id) => {
       console.error("Error during download:", error);
     }
   };
-  
+
 
 
   const saveRecording = async () => {
-    setError(""); 
+    setError("");
     if (audioName.trim() === '') {
       setError('Please enter a name for the recording.');
       return;
@@ -346,22 +353,22 @@ const handleSaveEdits = async (id) => {
       const audioBlob = new Blob(audioChunks.current, { type: 'audio/mp3' });
       // const token = Cookies.get('token');
       const token = localStorage.getItem("token");
-  
+
       if (!token) {
         alert('No token found. Please log in.');
         return;
       }
-  
+
       if (isNaN(duration) || duration <= 0) {
         setError('Invalid audio duration.');
         return;
       }
-  
+
       const formData = new FormData();
       formData.append('voice_name', audioName);
       formData.append('voice_file', audioBlob);
       formData.append('duration', duration);
-  
+
       const response = await axios.post(
         `${API_URL}/api/voice-memo/upload-voice`,
         formData,
@@ -372,16 +379,16 @@ const handleSaveEdits = async (id) => {
           },
         }
       );
-  
+
       if (response.status === 200 || response.status === 201) {
         const { fileName, size, date } = response.data;
-  
+
         // Update the audio files list with the new recording
         setAudioFiles((prev) => [
           ...prev,
           { name: fileName, size, date, url: audioURL },
         ]);
-  
+
         // Resetting after save
         setAudioURL(null);
         setAudioName('');
@@ -390,7 +397,7 @@ const handleSaveEdits = async (id) => {
         audioChunks.current = []; // Clear recorded chunks
         mediaRecorderRef.current = null; // Reset media recorder
         startTimeRef.current = null; // Reset start time
-  
+
         fetchAudioFiles(); // Fetch updated list after saving
       } else {
         console.error(`Unexpected response: ${response.status}`);
@@ -538,6 +545,18 @@ const handleSaveEdits = async (id) => {
     getUserData();
   }, []);
 
+  // const handleMobileSearchChange = (e) => {
+  //   MobilesetSearchQuery(e.target.value.toLowerCase());
+  // };
+
+  const filteredMobileFiles = audioFiles.filter((file) =>
+    file.voice_name.toLowerCase().includes(MobilesearchQuery)
+  );
+
+
+  const filteredFiles = audioFiles.filter((file) =>
+    file.voice_name.toLowerCase().includes(searchQuery)
+  );
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -558,6 +577,18 @@ const handleSaveEdits = async (id) => {
 
   return (
     <div className="mt-1 p-2 sm:p-4 max-h-screen bg-white overflow-hidden">
+
+      <div className="w-full mt-2 flex items-center border border-gray-300 rounded-lg p-2 md:hidden">
+        <Search className="text-gray-500 mr-2" />
+        <input
+          type="text"
+          placeholder="Search"
+          className="w-full p-1 bg-transparent outline-none text-black"
+          onChange={(e) => MobilesetSearchQuery(e.target.value)}
+
+        />
+      </div>
+
       <div className="flex flex-col ">
         <h1 className="text-2xl font-bold">Your Voice Memo</h1>
         <div
@@ -591,48 +622,48 @@ const handleSaveEdits = async (id) => {
               {isRecording ? 'Recording in Progress' : 'Ready to Record'}
             </h2>
             <div onClick={() => {
-  // Close the popup
-  setShowPopup(false);
+              // Close the popup
+              setShowPopup(false);
 
-  // Stop the media recording and the microphone access
-  if (mediaRecorderRef.current) {
-    mediaRecorderRef.current.stop();
-    mediaRecorderRef.current.onstop = () => {
-      // Clean up and reset states related to the recording
-      audioChunks.current = []; // Clear recorded chunks
-      mediaRecorderRef.current = null; // Reset media recorder
-      startTimeRef.current = null; // Reset start time
-      setAudioURL(null); // Clear audio URL
-      setAudioName(''); // Reset the audio name
-      setDuration(0); // Reset duration
-      setIsRecording(false); // Set the recording status to false
-      setIsStopped(true); // Mark recording as stopped
-    };
-  }
+              // Stop the media recording and the microphone access
+              if (mediaRecorderRef.current) {
+                mediaRecorderRef.current.stop();
+                mediaRecorderRef.current.onstop = () => {
+                  // Clean up and reset states related to the recording
+                  audioChunks.current = []; // Clear recorded chunks
+                  mediaRecorderRef.current = null; // Reset media recorder
+                  startTimeRef.current = null; // Reset start time
+                  setAudioURL(null); // Clear audio URL
+                  setAudioName(''); // Reset the audio name
+                  setDuration(0); // Reset duration
+                  setIsRecording(false); // Set the recording status to false
+                  setIsStopped(true); // Mark recording as stopped
+                };
+              }
 
-  // Stop the microphone stream
-  if (mediaRecorderRef.current && mediaRecorderRef.current.stream) {
-    mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
-  }
+              // Stop the microphone stream
+              if (mediaRecorderRef.current && mediaRecorderRef.current.stream) {
+                mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
+              }
 
-  // Close the audio context to stop any Web Audio API processes
-  if (audioContextRef.current) {
-    audioContextRef.current.close();
-    audioContextRef.current = null; // Clean up
-  }
+              // Close the audio context to stop any Web Audio API processes
+              if (audioContextRef.current) {
+                audioContextRef.current.close();
+                audioContextRef.current = null; // Clean up
+              }
 
-  // Stop the frequency analysis animation frame
-  if (animationFrameRef.current) {
-    cancelAnimationFrame(animationFrameRef.current);
-    animationFrameRef.current = null;
-  }
+              // Stop the frequency analysis animation frame
+              if (animationFrameRef.current) {
+                cancelAnimationFrame(animationFrameRef.current);
+                animationFrameRef.current = null;
+              }
 
-  // Reset any other states
-  setAudioURL(null); // Ensure the audio URL is cleared
-  fetchAudioFiles(); // Fetch updated list after saving or clearing
-}} className="cursor-pointer">
-  <X />
-</div>
+              // Reset any other states
+              setAudioURL(null); // Ensure the audio URL is cleared
+              fetchAudioFiles(); // Fetch updated list after saving or clearing
+            }} className="cursor-pointer">
+              <X />
+            </div>
 
           </div>
           <p className="mt-2 text-gray-600">
@@ -670,7 +701,7 @@ const handleSaveEdits = async (id) => {
               onChange={(e) => setAudioName(e.target.value)}
               className="p-2 border rounded-md w-full"
             />
-              {error && <p className="text-red-500 text-sm mt-2">{error}</p>} {/* Inline error message */}
+            {error && <p className="text-red-500 text-sm mt-2">{error}</p>} {/* Inline error message */}
             <button
               onClick={saveRecording}
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md w-full"
@@ -704,7 +735,7 @@ const handleSaveEdits = async (id) => {
         <h2 className="text-xl font-bold">Voices Library</h2>
       </div>
 
-          
+
       <div className=" justify-between items-center mt-8 hidden">
         <h2 className="text-xl font-bold">Voices Library</h2>
         {/* <button
@@ -731,57 +762,56 @@ const handleSaveEdits = async (id) => {
               </tr>
             </thead>
             <tbody>
-              {audioFiles.map((file, index) => (
+
+              {filteredFiles.map((file, index) => (
                 <React.Fragment key={file._id}>
-                {/* Main Row */}
-                <tr
-                  className={`text-xs sm:text-sm border-b-2 ${
-                    expandedRow === file._id ? "bg-blue-100 border-blue-100" : ""
-                  } transition-all duration-100`}
-                >
-                  <td className="p-0 md:p-4 flex items-center gap-0 md:gap-2">
-                    <button
-                      className="text-gray-500 hover:text-gray-800"
-                      onClick={() => handleToggleRow(file._id)}
-                    >
-                      <ChevronDown
-                        className={`${
-                          expandedRow === file._id ? "rotate-180" : ""
-                        } h-5 transition-transform`}
-                      />
-                    </button>
-                    {editsMode === file._id ? (
-                      <div className="flex items-center gap-2 border-b-2 border-blue-500 pt-2">
-                        <input
-                          type="text"
-                          value={newVoicesName}
-                          onChange={(e) => setNewVoicesName(e.target.value)}
-                          className="border rounded px-2 py-1 text-sm w-full bg-transparent outline-none"
+                  {/* Main Row */}
+                  <tr
+                    className={`text-xs sm:text-sm border-b-2 ${expandedRow === file._id ? "bg-blue-100 border-blue-100" : ""
+                      } transition-all duration-100`}
+                  >
+                    <td className="p-0 md:p-4 flex items-center gap-0 md:gap-2">
+                      <button
+                        className="text-gray-500 hover:text-gray-800"
+                        onClick={() => handleToggleRow(file._id)}
+                      >
+                        <ChevronDown
+                          className={`${expandedRow === file._id ? "rotate-180" : ""
+                            } h-5 transition-transform`}
                         />
-                        <button
-                          className="text-blue-500 hover:text-blue-700 px-3 py-1 bg-gray-100 rounded-md bg-transparent"
-                          onClick={() => handleSaveEdits(file._id)}
-                        >
-                          Save
-                        </button>
+                      </button>
+
+                      {editsMode === file._id ? (
+                        <div className="flex items-center gap-2 border-b-2 border-blue-500 pt-2">
+                          <input
+                            type="text"
+                            value={newVoicesName}
+                            onChange={(e) => setNewVoicesName(e.target.value)}
+                            className="border rounded px-2 py-1 text-sm w-full bg-transparent outline-none"
+                          />
+                          <button
+                            className="text-blue-500 hover:text-blue-700 px-3 py-1 bg-gray-100 rounded-md bg-transparent"
+                            onClick={() => handleSaveEdits(file._id)}
+                          >
+                            Save
+                          </button>
+                        </div>
+                      ) : (
+                        file.voice_name
+                      )}
+                    </td>
+                    <td className="p-0 md:p-4">
+                      <div
+                        className={`bg-[#EEEEEF] rounded-md px-3 py-1 inline-block transition-all duration-300 ${expandedRow ? "bg-white" : "bg-[#EEEEEF]"
+                          }`}
+                      >
+                        {file.duration} sec
                       </div>
-                    ) : (
-                      file.voice_name
-                    )}
-                  </td>
-                  <td className="p-0 md:p-4">
-                    <div
-                      className={`bg-[#EEEEEF] rounded-md px-3 py-1 inline-block transition-all duration-300 ${
-                        expandedRow ? "bg-white" : "bg-[#EEEEEF]"
-                      }`}
-                    >
-                      {file.duration} sec
-                    </div>
-                  </td>
-                  <td className="p-0 md:p-4">
-                    <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                      {file.date_of_upload && !isNaN(new Date(file.date_of_upload))
-                        ? new Date(file.date_of_upload).toLocaleString("en-US", {
+                    </td>
+                    <td className="p-0 md:p-4">
+                      <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                        {file.date_of_upload && !isNaN(new Date(file.date_of_upload))
+                          ? new Date(file.date_of_upload).toLocaleString("en-US", {
                             weekday: "short",
                             year: "numeric",
                             month: "short",
@@ -790,86 +820,88 @@ const handleSaveEdits = async (id) => {
                             minute: "numeric",
                             hour12: true,
                           })
-                        : "Invalid Date"}
-                    </p>
-                  </td>
-                  <td className="p-0 md:p-4">
-                    <span
-                      className={`bg-[#EEEEEF] p-2 rounded-md ${
-                        expandedRow ? "bg-white" : "bg-[#EEEEEF]"
-                      }`}
-                    >
-                      {file.file_size} Kb
-                    </span>
-                  </td>
-                  <td className="p-0 md:p-4">
-                    <button
-                      onClick={() => handlePlay(file)}
-                      className={`px-2 py-1 bg-[#EEEEEF] text-black font-semibold rounded-md ${
-                        expandedRow ? "bg-white" : "bg-[#EEEEEF]"
-                      }`}
-                    >
-                      <span className="flex">
-                        <img src={play} alt="" className="h-5 gap-1" />
-                        Play
+                          : "Invalid Date"}
+                      </p>
+                    </td>
+                    <td className="p-0 md:p-4">
+                      <span
+                        className={`bg-[#EEEEEF] p-2 rounded-md ${expandedRow ? "bg-white" : "bg-[#EEEEEF]"
+                          }`}
+                      >
+                        {file.file_size} Kb
                       </span>
-                    </button>
-                  </td>
-                </tr>
-                {/* Expanded Row */}
-                {expandedRow === file._id && (
-                  <tr>
-                    <td
-                      colSpan="5"
-                      className="p-4 border-l border-r border border-blue-100 bg-blue-100"
-                    >
-                      <div className="flex gap-4 items-center">
-                        <button
-                          className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
-                          onClick={() => setShare(true)}
-                        >
-                          <Users className="h-4" />
-                          <span className="absolute bottom-[-40px] z-40 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white w-24 text-black text-xs py-1 px-2 rounded shadow">
-                            Share with Designee
-                          </span>
-                        </button>
-                        <button
-                          className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
-                          onClick={() => handleEdits(file._id, file.voice_name)}
-                        >
-                          <Edit className="h-4" />
-                          <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white w-24 text-black text-xs py-1 px-2 rounded shadow">
-                            Edit Document
-                          </span>
-                        </button>
-                        <button
-                          className="relative group flex items-center gap-2 text-gray-600 hover:text-red-500"
-                          onClick={() => {
-                            setSelectedFileId(file._id);
-                            setDeletebutton(true);
-                          }}
-                        >
-                          <Trash2 className="h-4 text-red-700" />
-                          <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow">
-                            Delete
-                          </span>
-                        </button>
-
-                        <button
-                                  className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
-                                  onClick={() => handleDownloadFile(file._id)}
-                                >
-                                  <Download className="h-4" />
-                                  <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow">
-                                    Download
-                                  </span>
-                                </button>
-                      </div>
+                    </td>
+                    <td className="p-0 md:p-4">
+                      <button
+                        onClick={() => handlePlay(file)}
+                        className={`px-2 py-1 bg-[#EEEEEF] text-black font-semibold rounded-md ${expandedRow ? "bg-white" : "bg-[#EEEEEF]"
+                          }`}
+                      >
+                        <span className="flex">
+                          <img src={play} alt="" className="h-5 gap-1" />
+                          Play
+                        </span>
+                      </button>
                     </td>
                   </tr>
-                )}
-              </React.Fragment>              
-              
+                  {/* Expanded Row */}
+                  {expandedRow === file._id && (
+                    <tr>
+                      <td
+                        colSpan="5"
+                        className="p-4 border-l border-r border border-blue-100 bg-blue-100"
+                      >
+                        <div className="flex gap-4 items-center">
+                          <button
+                            className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
+                            onClick={() => setShare(true)}
+                          >
+                            <img src={shareicondesignee} alt="" className="h-4 " />
+                            {/* <Users className="h-4" /> */}
+                            <span className="absolute bottom-[-40px] z-40 left-2/3 transform -translate-x-1/2 hidden group-hover:block bg-white w-24 text-black text-xs py-1 px-2 rounded shadow">
+                              Share with Designee
+                            </span>
+                          </button>
+                          <button
+                            className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
+                            onClick={() => handleEdits(file._id, file.voice_name)}
+                          >
+                            <img src={editicon} alt="" className="h-4 " />
+                            {/* <Edit className="h-4" /> */}
+                            <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white w-24 text-black text-xs py-1 px-2 rounded shadow">
+                              Edit Document
+                            </span>
+                          </button>
+                          <button
+                            className="relative group flex items-center gap-2 text-gray-600 hover:text-red-500"
+                            onClick={() => {
+                              setSelectedFileId(file._id);
+                              setDeletebutton(true);
+                            }}
+                          >
+                            <img src={trashicon} alt="" className="h-4 " />
+                            {/* <Trash2 className="h-4 text-red-700" /> */}
+                            <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow">
+                              Delete
+                            </span>
+                          </button>
+
+                          <button
+                            className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
+                            onClick={() => handleDownloadFile(file._id)}
+                          >
+                            <img src={downloadicon} alt="" className="h-4 " />
+                            {/* <Download className="h-4" /> */}
+                            <span className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-white text-black text-xs py-1 px-2 rounded shadow">
+                              Download
+                            </span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+
               ))}
             </tbody>
           </table>
@@ -877,9 +909,8 @@ const handleSaveEdits = async (id) => {
       </>
 
 
-
-      <div className="md:hidden grid grid-cols-1 gap-y-3 gap-x-2 mt-4 overflow-y-scroll max-h-[60vh]">
-        {audioFiles.map((file, index) => (
+      <div className="md:hidden grid grid-cols-1 gap-y-3 gap-x-2 mt-4 overflow-y-scroll max-h-[60vh] scroll-smooth">
+        {filteredMobileFiles.map((file, index) => (
           <div
             key={index}
             className="border p-3 sm:p-3 rounded-md flex flex-col justify-between"
@@ -893,16 +924,38 @@ const handleSaveEdits = async (id) => {
                   className="h-6"
                   onClick={() => handlePlay(file)}
                 />
-                <h3 className="font-bold text-xl">{file.voice_name}</h3>
+
+                {editsMode === file._id ? (
+                  <div className="flex items-center gap-1 border-b-2 border-blue-500 pt-2">
+                    <input
+                      type="text"
+                      value={newVoicesName}
+                      onChange={(e) => setNewVoicesName(e.target.value)}
+                      className="border rounded px-2 py-1 text-sm w-full bg-transparent outline-none"
+                    />
+                    <button
+                      className="text-blue-500 hover:text-blue-700 px-1 py-1 bg-gray-100 rounded-md bg-transparent"
+                      onClick={() => handleSaveEdits(file._id)}
+                    >
+                      Save
+                    </button>
+                  </div>
+                ) : (
+                  <h3 className="font-bold text-xl">{file.voice_name}</h3>
+                )}
               </div>
 
               {/* Ellipsis Icon */}
               <div className="relative flex">
-                <p className="text-gray-700 text-sm mr-4 text-center pt-1 w-12 bg-[#EEEEEE] rounded-lg">{file.file_size}</p>
-                <EllipsisVertical
+                <p className="text-gray-700 text-sm mr-4 text-center pt-1 w-12 bg-[#EEEEEE] rounded-lg">
+                  {file.file_size}
+                </p>
+                <button
                   className="cursor-pointer"
                   onClick={() => handleEllipsisClick(index)}
-                />
+                >
+                  <EllipsisVertical />
+                </button>
 
                 {/* Popup Menu */}
                 {isPopupOpen && popupIndex === index && (
@@ -911,19 +964,28 @@ const handleSaveEdits = async (id) => {
                     initial={{ opacity: 0, scale: 0.9, y: -10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9, y: -10 }}
-                    className="absolute top-8 right-0 z-10 bg-white shadow-md rounded-md p-2 flex flex-col gap-2"
+                    className="absolute top-8 right-0 z-10 bg-white shadow-md rounded-md p-2 w-40 flex flex-col gap-2"
                   >
                     <button
                       className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
                       onClick={() => alert("Share")}
                     >
-                      <Users className="h-4" />
+                      <img src={shareicondesignee} alt="" className="h-4" />
                       Share
                     </button>
-                    <button className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500">
-                      <Edit className="h-4" />
+                    {/* <button className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500">
+                <img src={editicon} alt="" className="h-4" />
+                Edit
+              </button> */}
+                    <button
+                      className="relative group flex items-center gap-2 text-gray-600 hover:text-blue-500"
+                      onClick={() => handleEdits(file._id, file.voice_name)}
+                    >
+                      <img src={editicon} alt="" className="h-4 " />
+                      {/* <Edit className="h-4" /> */}
                       Edit
                     </button>
+
                     <button
                       className="relative group flex items-center gap-2 text-gray-600 hover:text-red-500"
                       onClick={() => {
@@ -931,7 +993,7 @@ const handleSaveEdits = async (id) => {
                         setDeletebutton(true);
                       }}
                     >
-                      <Trash2 className="h-4 text-red-700" />
+                      <img src={trashicon} alt="" className="h-4" />
                       Delete
                     </button>
                   </motion.div>
@@ -958,11 +1020,13 @@ const handleSaveEdits = async (id) => {
                 )}
               </p>
 
-              <p className="text-sm text-gray-700 mt-1">{file.duration} sec</p>
+              <p className="text-sm text-gray-700  mt-1">{file.duration} sec</p>
             </div>
           </div>
         ))}
       </div>
+
+
 
 
 

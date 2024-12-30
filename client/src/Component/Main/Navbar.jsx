@@ -11,7 +11,7 @@ import profile from "../../assets/profile.jpg";
 import MobileSidebar from "../../Component/Main/MobileSidebar";
 import fetchUserData from "./fetchUserData";
 
-const Navbar = ({ onFolderSelect }) => {
+const Navbar = ({ onFolderSelect,setSearchQuery  }) => {
     const [showSearch, setShowSearch] = useState(false);
     const [userData, setUserData] = useState(null);
     const [error, setError] = useState(null);
@@ -115,6 +115,7 @@ const Navbar = ({ onFolderSelect }) => {
                         type="text"
                         placeholder="Search"
                         className="flex-grow px-3 py-2 rounded-md focus:outline-none"
+                        onChange={(e) => setSearchQuery(e.target.value)} 
                     />
                 </div>
 

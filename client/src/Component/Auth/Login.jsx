@@ -476,7 +476,7 @@ const Login = ({ name = "Daniel" }) => {
         <div className="flex flex-col md:flex-row h-screen text-white">
             {/* Left Section */}
             <div id="recaptcha-container"></div>
-            <div className="lg:w-2/4 w-full flex flex-col p-3 md:p-6">
+            <div className="lg:w-2/4 w-full flex flex-col  justify-center p-3 md:p-6">
                 <div className="bg-white text-black p-10 rounded-lg min-w-full max-w-md">
                     {/* Logo */}
                     <div className="flex  items-center mb-4 lg:w-full sm:w-[80%] w-full">
