@@ -21,7 +21,7 @@ app.use(express.json());
 
 app.use(cookieParser());
 app.use(cors({
-  origin: 'http://localhost:3001', 
+  origin: 'http://16.170.230.178:3001', 
   credentials: true, 
 }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -39,7 +39,7 @@ app.use(session({
 }));
 
 app.use("/api/auth", userRoutes);
-app.use("/api/subscriptions", subscriptionRoutes);
+app.use("/api/subscriptions", subscriptionRoutes);  
 app.use("/api", fileuploadRoutes);
 app.use("/api/voice-memo", voiceuploadRoutes);
 app.use("/api/default", defaultfileRoutes);
@@ -56,4 +56,4 @@ mongoose
     process.exit(1);
   });
 
-  app.listen(PORT, '0.0.0.0', () => console.log(`Server running on http://localhost:${PORT}`));
+  app.listen(PORT, '0.0.0.0', () => console.log(`Server running on http://16.170.230.178:${PORT}`));
