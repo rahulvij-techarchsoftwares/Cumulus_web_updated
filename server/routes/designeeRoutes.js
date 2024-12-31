@@ -21,7 +21,7 @@ router.post("/add", authenticateToken, async (req, res) => {
 
   try {
       var body = `Hello ${designeeName}<br/><br/>Please click on below link for registration with Cumulus.<br/><br/>`;
-      body += `<a href='http://localhost:3000/?email=${designeeEmail}&created_by=${user_id}'>http://localhost:3000/?email=${designeeEmail}&created_by=${user_id}</a>`;
+      body += `<a href='http://16.170.230.178:3000/?email=${designeeEmail}&created_by=${user_id}'>http://16.170.230.178:3000/?email=${designeeEmail}&created_by=${user_id}</a>`;
       body += "<br/><br/>Thanks<br/>Cumulus Team!";
 
       const emailResponse = await sendEmail({
