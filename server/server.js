@@ -13,6 +13,7 @@ const voiceuploadRoutes = require("./routes/voiceuploadRoutes");
 const defaultfileRoutes = require("./routes/defaultfileRoutes");
 const membershipRoutes = require("./routes/membershipRoutes");
 const helpandsupport = require("./routes/userhelpRoutes");
+const designeeRoutes = require("./routes/designeeRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -46,6 +47,7 @@ app.use("/api/default", defaultfileRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api', membershipRoutes);
 app.use("/api/help-support", helpandsupport);
+app.use("/api/designee", designeeRoutes);
 
 const DB_URI = process.env.DB_URI;
 mongoose

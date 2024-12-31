@@ -160,4 +160,13 @@ const ProfilePictureSchema = new mongoose.Schema(
 
 const ProfilePicture = mongoose.model("ProfilePicture", ProfilePictureSchema);
 const Userlogin = mongoose.model("User", UserSchema);
-module.exports = { Role, SecurityQuestion, Userlogin, UserQuestion, ProfilePicture };
+
+
+const UserSharedFileSchema = new mongoose.Schema({
+  file_id: { type: String, ref: "File", required: true },
+  from_user_id: { type: String, ref: "User", required: true },
+  to_user_id: { type: String, ref: "User", required: true },
+});
+const UserSharedFile = mongoose.model("UserSharedFile", UserSharedFileSchema);
+
+module.exports = { Role, SecurityQuestion, Userlogin, UserQuestion, ProfilePicture, UserSharedFile };

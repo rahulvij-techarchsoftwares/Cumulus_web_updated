@@ -302,13 +302,27 @@ const Sidebar = ({ onFolderSelect }) => {
   //     setShowDesignerInput(false);
   // };
 
-  const handleAddDesignee = () => {
+  const handleAddDesignee = async () => {
     if (designeeName && designeePhone && designeeEmail) {
       setDesigners([...designers, designeeName]); // Add the new designer to the list
-      setShowDesignerPopup(false); // Close the popup
+      //setShowDesignerPopup(false); // Close the popup
+      console.log("designeeName",designeeName);
+      console.log("designeePhone",designeePhone);
+      console.log("designeeEmail",designeeEmail);
       setDesigneeName(""); // Reset the input fields
       setDesigneePhone("");
       setDesigneeEmail("");
+      const token = localStorage.getItem("token");
+      const response = await axios.post(`${API_URL}/api/designee/add`, {designeeName, designeePhone, designeeEmail},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(response);
+      alert("Designee added successfully!");
+      setShowDesignerPopup(false);
     } else {
       alert("Please fill out all fields before inviting a designee.");
     }
@@ -752,6 +766,115 @@ const Sidebar = ({ onFolderSelect }) => {
                 <span className="text-gray-700 py-1 px-2 bg-gray-200 rounded-full ">Will</span>
             </div> */}
 
+
+
+<h2 className="font-semibold text-[#667085] text-xs mt-2">
+          {designers.length} Designees
+          {designers.length > 3 && (
+            <button
+              onClick={() => {
+                setViewAllDesigners(!viewAllDesigners);
+                setOpenMenuId(null);
+              }}
+              className="text-blue-500 text-xs float-right"
+            >
+              {viewAllDesigners ? "View Less" : "View All"}
+            </button>
+          )}
+        </h2>
+        <ul>
+          {(viewAllDesigners ? designers : designers.slice(0, 3)).map(
+            (designer, index) => (
+              <li
+                key={index}
+                className="text-gray-700 py-1 hover:text-blue-500 flex items-center cursor-pointer"
+              >
+                <User className="mr-2" />
+                {designer}
+              </li>
+            )
+          )}
+        </ul>
+    
+        <button
+          onClick={() => {
+            if (isMembershipActive) {
+              setOpenMenuId(null);
+              setShowDesignerPopup(true);
+            } else {
+              setOpenMenuId(null);
+              setDeletebutton2(true);
+            }
+          }}
+          className="flex items-center w-full bg-gray-200 p-1 text-black mt-2 rounded-md justify-center border"
+        >
+          <Plus className="mr-2" />
+          Add Designer
+        </button> 
+
+
+        {showDesignerPopup && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+              <div className="flex justify-between items-center border-b pb-3">
+                <h3 className="text-lg font-semibold">Add Designee</h3>
+                <button
+                  onClick={() => setShowDesignerPopup(false)}
+                  className="text-gray-500"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="mt-4">
+                <div className="flex items-center justify-center mb-4">
+                  <div className="w-24 h-24 rounded-full border-dashed border-2 flex items-center justify-center text-gray-500">
+                    <Camera className="h-6 w-6" />
+                  </div>
+                </div>
+                <label className="block mb-2 text-sm font-medium">
+                  Enter Designee Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="Designee Name"
+                  value={designeeName}
+                  onChange={(e) => setDesigneeName(e.target.value)}
+                  className="border p-2 rounded w-full mb-3"
+                />
+                <label className="block mb-2 text-sm font-medium">
+                  Enter Designee Phone Number
+                </label>
+                <input
+                  type="text"
+                  placeholder="Designee Phone Number"
+                  value={designeePhone}
+                  onChange={(e) => setDesigneePhone(e.target.value)}
+                  className="border p-2 rounded w-full mb-3"
+                />
+                <label className="block mb-2 text-sm font-medium">
+                  Enter Designee Email
+                </label>
+                <input
+                  type="email"
+                  placeholder="Designee Email"
+                  value={designeeEmail}
+                  onChange={(e) => setDesigneeEmail(e.target.value)}
+                  className="border p-2 rounded w-full mb-4"
+                />
+              </div>
+              <button
+                onClick={handleAddDesignee}
+                //onClick={() => setShowDesignerPopup(false)}
+                className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+              >
+                Invite to Cumulus
+              </button>
+
+              
+            </div>
+            
+          </div>
+        )}
       {/* Voice memo */}
       <div className="">
         <h2 className="font-semibold text-[#667085] mt-2">Voice memo</h2>

@@ -223,6 +223,19 @@ const fetchProfilePicture = async () => {
       alert("An error occurred while saving the details. Please try again.");
     }
   };
+  // Utility function to convert size to GB
+const convertToGB = (value, unit) => {
+  switch (unit.toLowerCase()) {
+    case "kb":
+      return value / (1024 * 1024); // KB to GB
+    case "mb":
+      return value / 1024; // MB to GB
+    case "gb":
+      return value; // Already in GB
+    default:
+      return 0; // Default for unknown units
+  }
+};
   return (
     <div className="bg-gray-50 p-6">
       <div className="mx-auto">
@@ -379,7 +392,15 @@ const fetchProfilePicture = async () => {
                   <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
                     <div
                       className="bg-blue-600 h-2.5 rounded-full"
-                      style={{ width: "0.5%" }}
+                      style={{
+                        width:
+                          folderSize && folderSize.value
+                            ? `${Math.min(
+                                (convertToGB(folderSize.value, folderSize.unit) / 20) * 100,
+                                100
+                              )}%`
+                            : "0%", 
+                      }}
                     ></div>
                   </div>
                   {/* <p className="text-gray-500">10.47 GB of 20 GB</p> */}
