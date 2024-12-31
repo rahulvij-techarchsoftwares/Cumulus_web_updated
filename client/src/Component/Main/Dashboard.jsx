@@ -11,6 +11,8 @@ import foldericon from "../../assets/foldericon.png";
 import eyeicon from "../../assets/eyeicon.png";
 import trashicon from "../../assets/trashicon.png";
 import downloadicon from "../../assets/downloadicon.png";
+import usePopupStore from "../../store/DesigneeStore";
+import DesignerPopup from "../Main/Designeepopup";
 
 import {
   ArrowRight,
@@ -44,15 +46,24 @@ import { useParams, NavLink } from "react-router-dom";
 
 import useLoadingStore from "../../store/UseLoadingStore";
 
-const Dashboard = ({ folderId = 1, onFolderSelect,searchQuery }) => {
+const Dashboard = ({ folderId = 1, onFolderSelect,searchQuery  }) => {
   const { id: routeFolderId } = useParams();
-
+ 
   const { isLoading, showLoading, hideLoading } = useLoadingStore();
 
   const activeFolderId = folderId || routeFolderId;
 
   const [isUploading, setIsUploading] = useState(false);
-
+  const {
+    showDesignerPopup,
+    closePopup,
+    designeeName,
+    setDesigneeName,
+    designeePhone,
+    setDesigneePhone,
+    designeeEmail,
+    setDesigneeEmail,
+  } = usePopupStore()
   const [openMenuId, setOpenMenuId] = useState(() => {
     try {
       const storedValue = localStorage.getItem("openMenuId");
@@ -139,10 +150,10 @@ const Dashboard = ({ folderId = 1, onFolderSelect,searchQuery }) => {
 
   // ]);
   const [people, setPeople] = useState([]);
-  const [showDesignerPopup, setShowDesignerPopup] = useState(false); // Toggles the popup visibility
-  const [designeeName, setDesigneeName] = useState(""); // Holds the input for designee name
-  const [designeePhone, setDesigneePhone] = useState(""); // Holds the input for designee phone number
-  const [designeeEmail, setDesigneeEmail] = useState(""); // Holds the input for designee email
+  // const [showDesignerPopup, setShowDesignerPopup] = useState(false); // Toggles the popup visibility
+  // const [designeeName, setDesigneeName] = useState(""); // Holds the input for designee name
+  // const [designeePhone, setDesigneePhone] = useState(""); // Holds the input for designee phone number
+  // const [designeeEmail, setDesigneeEmail] = useState(""); // Holds the input for designee email
 
   const [need, setNeed] = useState([]);
 
@@ -2739,6 +2750,21 @@ const [MobilesearchQuery, MobilesetsearchQuery] = useState("");
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {showOverlay && renderOverlay()}
+
+      <div>
+      {/* Dashboard content */}
+      <DesignerPopup
+        isVisible={showDesignerPopup}
+        onClose={closePopup}
+        designeeName={designeeName}
+        setDesigneeName={setDesigneeName}
+        designeePhone={designeePhone}
+        setDesigneePhone={setDesigneePhone}
+        designeeEmail={designeeEmail}
+        setDesigneeEmail={setDesigneeEmail}
+        handleAddDesignee={handleAddDesignee}
+      />
+    </div>
     </div>
   );
 };
